@@ -1,9 +1,9 @@
-
 class Node:
     def __init__(self, data):
         self.data = data
         self.next = None
         self.prev = None
+
 
 class DoubleLinkedList:
     def __init__(self):
@@ -44,7 +44,7 @@ class DoubleLinkedList:
         counter = 0
         while start_next_node.next != None:
             if start_next_node.data == value:
-                counter += 1 
+                counter += 1
             start_next_node = start_next_node.next
         return counter
 
@@ -58,4 +58,3 @@ class DoubleLinkedList:
             item = self.head
             self.head = self.head.next
             return item.data
-
