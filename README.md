@@ -1,1 +1,1 @@
-# PythonProjects
+# PythonProjects by Max Kuzma
