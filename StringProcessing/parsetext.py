@@ -13,5 +13,5 @@ def process_text(text):
     return len(re.findall('\w+', input_text))
 
 
-txt = "He can't couldn't i'll 1rd 111 thss"
+txt = "He can't couldn't i'll 1rd 20 Brodway, London"
 print(process_text(txt))
