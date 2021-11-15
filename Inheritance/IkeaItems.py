@@ -4,7 +4,7 @@ import re
 class IkeaItem:
     def __init__(self, rack_number, row, name, price):
         assert rack_number < 100
-        assert re.matches(r'[A-K]', row)
+        assert re.matches(r'[A-K]', row) is not None
         assert len(name) > 1
         assert price > 0
         self.rack_number = rack_number
