@@ -8,8 +8,13 @@ class Messages:
     unsent_message = None
 
 
-# Generates encryption key with same length as message
 def generate_key(message, keyword):
+    """
+    Generates cipher key with the same length as message using original cipher key
+    :param message: str message that we want generate key for
+    :param keyword: str original cipher key
+    :return: str cipher key with the same length as message
+    """
     if len(keyword) == len(message):
         return keyword
     elif len(keyword) > len(message):
@@ -20,8 +25,13 @@ def generate_key(message, keyword):
         return keyword[0:len(message)]
 
 
-# Decrypts encrypted message from other clients using Vigenere cipher
 def decrypt(message, keyword):
+    """
+    Decrypts encrypted message from other clients using Vigenere cipher
+    :param message: str encrypted message from server
+    :param keyword: str decrypt key from server
+    :return: str decrypted message
+    """
     decrypted_message = []
     index = 0
     key = generate_key(message, keyword)
@@ -43,8 +53,13 @@ def decrypt(message, keyword):
     return "".join(decrypted_message)
 
 
-# Encrypts user's message using Vigenere cipher
 def encrypt(message, keyword):
+    """
+    Encrypts user's message using Vigenere cipher
+    :param message: str user input message
+    :param keyword: str user input encryption key
+    :return: str encrypted user message
+    """
     cipher_text = []
     index = 0
     key = generate_key(message, keyword)
@@ -66,12 +81,14 @@ def encrypt(message, keyword):
     return "".join(cipher_text)
 
 
-# Used to receive messages from other clients
 def get_messages_from_server():
+    # Used to receive messages from other clients
+    # cipher_separator used to split received message from server to message and decrypt key
+    cipher_separator = chr(1)
     while True:
         try:
             encrypted_message = client.recv(1024).decode('ascii')
-            received_message = encrypted_message.split(';')
+            received_message = encrypted_message.split(cipher_separator)
             message = received_message[0]
             decrypt_key = received_message[1]
             # Decrypts message from other client
@@ -84,7 +101,7 @@ def get_messages_from_server():
                 message = ''
 
             if message == 'SET_NICKNAME':
-                client.send((nickname + ';' + cipher_key).encode('ascii'))
+                client.send((nickname + cipher_separator + cipher_key).encode('ascii'))
             else:
                 print(message)
 
@@ -94,8 +111,8 @@ def get_messages_from_server():
             sys.exit()
 
 
-# Method used for sending messages
 def send_message():
+    # Method used for sending messages
     while True:
         message = None
         try:
