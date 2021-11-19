@@ -1,6 +1,6 @@
 import socket
 import threading
-import time
+from time import sleep
 
 server_ip = '127.0.0.1'
 port = 8888
@@ -11,19 +11,16 @@ server.listen()
 
 clients = []                               # List of currently connected clients
 nicknames = []                             # List of known client nicknames
-cipher_keys = []                           # List of keys for messages
-messages = []                              # List of tuples of messages and cipher keys for these messages
-cipher_separator = chr(1).encode('ascii')  # Used to separate message and cipher key in sent message
+messages = []                              # List of tuples of messages
 
 
-def send_to_all_clients(message, key):
+def send_to_all_clients(message):
     """
     Sends message to all connected clients
     :param message: byte
-    :param key: byte decryption key for message
     """
     for cl in clients:
-        cl.send(message + cipher_separator + key)
+        cl.send(message)
 
 
 def send_chat_history_after_reconnect(client):
@@ -32,27 +29,24 @@ def send_chat_history_after_reconnect(client):
     :param client: client that should receive message history
     """
     for message in messages:
-        client.send(message[0] + cipher_separator + message[1])
-        time.sleep(0.2)
-
+        client.send(message)
+        sleep(0.2)
 
 
 def get_client_messages(client):
     """
     Used in thread to constantly receive messages from defined client
-    :param client: client
+    :param client: client that the server getting messages from
     """
     while True:
         try:
             message = client.recv(1024)
-            cipher_key = cipher_keys[clients.index(client)]
-            message_with_key = (message, cipher_key.encode('ascii'))
-            messages.append(message_with_key)
-            send_to_all_clients(message, cipher_key.encode('ascii'))
+            messages.append(message)
+            send_to_all_clients(message)
         except:
             client_nickname = nicknames[clients.index(client)]
             clients.remove(client)
-            send_to_all_clients((client_nickname + ' disconnected.').encode('ascii'), ''.encode('ascii'))
+            send_to_all_clients(('SERVER_MESSAGE > ' + client_nickname + ' disconnected.').encode('ascii'))
             print(f'{client_nickname} disconnected.')
             client.close()
             break
@@ -73,7 +67,7 @@ def server_start():
             clients.insert(nicknames.index(client_nickname), client)
             send_chat_history_after_reconnect(client)
         print("Nickname: " + client_nickname)
-        send_to_all_clients(f"{client_nickname} joined chat!".encode('ascii'))
+        send_to_all_clients(f"SERVER_MESSAGE > {client_nickname} joined chat!".encode('ascii'))
         new_thread = threading.Thread(target=get_client_messages, args=(client,))
         new_thread.start()
 
