@@ -5,7 +5,7 @@ class IkeaItem:
     def __init__(self, rack_number, row, name, price):
         assert 0 > rack_number < 100
         assert re.match(r'[A-K]', row) is not None
-        assert name is str and len(name) > 1
+        assert type(name) == str and len(name) > 1
         assert price > 0
         self.rack_number = rack_number
         self.row = row
@@ -30,7 +30,7 @@ class Lack(IkeaItem, MeasurableIkeaItem):
     def __init__(self, rack_number, row, name, price, color, height, width):
         IkeaItem.__init__(self, rack_number, row, name, price)
         MeasurableIkeaItem.__init__(self, height, width)
-        assert color is str and len(color) > 1
+        assert type(color) == str and len(color) > 1
         self.color = color
 
 
@@ -47,7 +47,7 @@ class Sjorapport(IkeaItem, PlasticWasteIkeaItem):
     def __init__(self, rack_number, row, name, price, exp_date, mass, plastic_mass):
         IkeaItem.__init__(self, rack_number, row, name, price)
         PlasticWasteIkeaItem.__init__(self, plastic_mass)
-        assert exp_date is str and len(exp_date) > 1
+        assert type(exp_date) == str and len(exp_date) > 1
         assert mass > 0
         self.exp_date = exp_date
         self.mass = mass
