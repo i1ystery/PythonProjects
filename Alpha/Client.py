@@ -85,7 +85,8 @@ def get_messages_from_server():
     # Used to receive messages from other clients
     # cipher_separator used to split received message from server to message and decrypt key
     cipher_separator = chr(1)
-    while True:
+    online = True
+    while online:
         try:
             encrypted_message = client.recv(1024).decode('ascii')
             received_message = encrypted_message.split(cipher_separator)
@@ -108,12 +109,13 @@ def get_messages_from_server():
         except Exception as e:
             print(e)
             client.close()
-            sys.exit()
+            online = False
 
 
 def send_message():
     # Method used for sending messages
-    while True:
+    online = True
+    while online:
         message = None
         try:
             if Messages.unsent_message is not None:
@@ -132,7 +134,7 @@ def send_message():
         except Exception as e:
             print(e)
             Messages.unsent_message = message
-            sys.exit()
+            online = False
 
 
 if __name__ == '__main__':

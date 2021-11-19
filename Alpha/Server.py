@@ -63,20 +63,17 @@ def server_start():
     while True:
         client, address = server.accept()
         print("New client connected. \nIP: " + str(address))
-        client.send(('SET_NICKNAME'.encode('ascii') + cipher_separator))
-        client_data = client.recv(1024).decode('ascii').split(cipher_separator.decode('ascii'))
-        print('Name and cipher key ' + str(client_data))
-        client_nickname = client_data[0]
-        cipher_key = client_data[1]
+        client.send(('SET_NICKNAME'.encode('ascii')))
+        client_data = client.recv(1024).decode('ascii')
+        client_nickname = client_data
         if client_nickname not in nicknames:
             nicknames.append(client_nickname)
             clients.append(client)
-            cipher_keys.append(cipher_key)
         else:
-            clients.insert(cipher_keys.index(cipher_key), client)
+            clients.insert(nicknames.index(client_nickname), client)
             send_chat_history_after_reconnect(client)
         print("Nickname: " + client_nickname)
-        send_to_all_clients(f"{client_nickname} joined chat!".encode('ascii'), ''.encode('ascii'))
+        send_to_all_clients(f"{client_nickname} joined chat!".encode('ascii'))
         new_thread = threading.Thread(target=get_client_messages, args=(client,))
         new_thread.start()
 
