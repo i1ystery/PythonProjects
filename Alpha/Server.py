@@ -9,9 +9,9 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((server_ip, port))
 server.listen()
 
-clients = []                               # List of currently connected clients
-nicknames = []                             # List of known client nicknames
-messages = []                              # List of tuples of messages
+clients = []    # List of currently connected clients
+nicknames = []  # List of known client nicknames
+messages = []   # List of tuples of messages
 
 
 def send_to_all_clients(message):
