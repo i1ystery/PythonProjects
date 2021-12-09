@@ -38,6 +38,6 @@ for i in data:
 
 textfile = open("parsed_inserts.txt", "w")
 for element in parsed_list:
-    lenght = len(element)
-    textfile.write("(" + element[0:lenght - 1] + "),\n")
+    length = len(element)
+    textfile.write("(" + element[0:length - 1] + "),\n")
 textfile.close()

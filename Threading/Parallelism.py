@@ -1,6 +1,6 @@
 import csv
+import multiprocessing as mp
 import time
-import threading
 
 data = []
 with open('dluznici.csv') as csvfile:
@@ -39,11 +39,11 @@ if __name__ == "__main__":
     start = time.time()
     # OPTIMALUZUJTE ZDE - ZACATEK
 
-    v1 = threading.Thread(target=prumerny_dluh_dle_roku_narozeni, args=(1991, 2001, "dvacatniky"))
-    v2 = threading.Thread(target=prumerny_dluh_dle_roku_narozeni, args=(1981, 1991, "tricatniky"))
-    v3 = threading.Thread(target=prumerny_dluh_dle_roku_narozeni, args=(1971, 1981, "ctyricatniky"))
-    v4 = threading.Thread(target=prumerny_dluh_dle_roku_narozeni, args=(1961, 1971, "padesatniky"))
-    v5 = threading.Thread(target=prumerny_dluh_dle_roku_narozeni, args=(1951, 1961, "sedesatniky"))
+    v1 = mp.Process(target=prumerny_dluh_dle_roku_narozeni, args=(1991, 2001, "dvacatniky"))
+    v2 = mp.Process(target=prumerny_dluh_dle_roku_narozeni, args=(1981, 1991, "tricatniky"))
+    v3 = mp.Process(target=prumerny_dluh_dle_roku_narozeni, args=(1971, 1981, "ctyricatniky"))
+    v4 = mp.Process(target=prumerny_dluh_dle_roku_narozeni, args=(1961, 1971, "padesatniky"))
+    v5 = mp.Process(target=prumerny_dluh_dle_roku_narozeni, args=(1951, 1961, "sedesatniky"))
     v1.start()
     v2.start()
     v3.start()
