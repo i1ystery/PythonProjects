@@ -19,11 +19,11 @@ record_count = 0          # Used for counting matched record by category in meth
 found_record = None       # Used for storing found record from method find_by_value()
 
 
-def create_record(unique_val: int, int_val: int, str_val: str, enum_val: Color):
+def create_record(unique_val: int, int_val: int, str_val: str, enum_val: Color) -> tuple[int, int, str, Color]:
     """
     Creates a record that is eligible to be put into record list.
 
-    :return: New record as tuple
+    :return: New record as tuple with specified values
     """
     assert isinstance(unique_val, int) and isinstance(int_val, int)
     assert unique_val not in unique_values
@@ -132,7 +132,7 @@ def start_find_by_value(value):
     :param value: int/str/Enum value to be found in records
     :return: record from record_list that has specified value
     """
-    assert isinstance(value, int) or isinstance(value, str) or isinstance(value, Enum)
+    assert isinstance(value, int) or isinstance(value, str) or isinstance(value, Color)
     split = split_list(record_list)
     with ThreadPoolExecutor(max_workers=len(split)) as executor:
         executor.map(find_by_value, repeat(value), split)
@@ -163,6 +163,7 @@ def start_find_all_by_values(values_iterable: tuple[int, str, Color]):
     :return: list of all records that contains specified values
     """
     assert len(values_iterable) == 3
+    assert isinstance(values_iterable[0], int) and isinstance(values_iterable[1], str) and isinstance(values_iterable[2], Color)
     split = split_list(record_list)
     with ProcessPoolExecutor(max_workers=len(split)) as executor:
         results = executor.map(find_all_by_values, repeat(values_iterable), split)
