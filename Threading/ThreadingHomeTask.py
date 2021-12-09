@@ -10,7 +10,6 @@ class Color(Enum):
     GREEN = auto()
     BLUE = auto()
     CYAN = auto()
-    MAGENTA = auto()
 
 
 record_list = []          # Used for storing all records
@@ -201,6 +200,7 @@ def start_count_by_category(category: Color):
 
 
 if __name__ == '__main__':
+    # Test with larger list
     # record_list.append(create_record(324432534, 100, 'm', Color.RED))
     # for i in range(1000000):
     #     if i%5 == 0:
