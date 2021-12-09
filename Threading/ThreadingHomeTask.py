@@ -1,4 +1,4 @@
-import multiprocessing as mp
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from enum import Enum, auto
@@ -17,6 +17,7 @@ unique_values = set()     # Used for storing unique variables
 stop_threads = False      # Used for stopping threads when it's needed
 record_count = 0          # Used for counting matched record by category in method count_by_category()
 found_record = None       # Used for storing found record from method find_by_value()
+lock = threading.Lock()   # Used for locking threads when counting in record_count
 
 
 def create_record(unique_val: int, int_val: int, str_val: str, enum_val: Color) -> tuple[int, int, str, Color]:
@@ -89,6 +90,7 @@ def append_records(records_list: list):
     records_list.append(create_record(48, 4800, 'v', Color.CYAN))
     records_list.append(create_record(49, 4900, 'w', Color.BLUE))
     records_list.append(create_record(50, 5000, 'x', Color.RED))
+# append_records(record_list)  # Insert data into record_list
 
 
 def split_list(records_list: list[tuple]):
@@ -181,9 +183,10 @@ def count_by_category(category: Color, searching_list: list[tuple]):
     :param searching_list: list that contains records
     """
     global record_count
-    for record in searching_list:
-        if category in record:
-            record_count += 1
+    with lock:
+        for record in searching_list:
+            if category in record:
+                record_count += 1
 
 
 def start_count_by_category(category: Color):
@@ -204,14 +207,13 @@ if __name__ == '__main__':
     # Test with larger list
     # record_list.append(create_record(324432534, 100, 'm', Color.RED))
     # for i in range(1000000):
-    #     if i%5 == 0:
+    #     if i % 5 == 0:
     #         record_list.append(create_record(i, 100, 'a', Color.RED))
     #     else:
     #         record_list.append(create_record(i, 100, 'a', Color.GREEN))
     #
     # record_list.append(create_record(324532534, 100, 'm', Color.RED))
 
-    append_records(record_list)  # Insert data into record_list
     # Find record with specified value start
     start = time.time()
     print(start_find_by_value('m'))
