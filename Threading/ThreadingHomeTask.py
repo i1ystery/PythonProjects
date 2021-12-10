@@ -90,7 +90,7 @@ def append_records(records_list: list):
     records_list.append(create_record(48, 4800, 'v', Color.CYAN))
     records_list.append(create_record(49, 4900, 'w', Color.BLUE))
     records_list.append(create_record(50, 5000, 'x', Color.RED))
-# append_records(record_list)  # Insert data into record_list
+append_records(record_list)  # Insert data into record_list
 
 
 def split_list(records_list: list[tuple]):
@@ -124,6 +124,8 @@ def find_by_value(value, searching_list: list[tuple]):
                 found_record = record
                 stop_threads = True
                 break
+        else:
+            break
 
 
 def start_find_by_value(value):
