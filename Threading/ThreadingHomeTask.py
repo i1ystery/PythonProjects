@@ -132,9 +132,9 @@ def start_find_by_value(value):
     """
     Finds record with specified value in record_list using threads to increase search speed.
     Uses split_list and find_by_value methods to increase search speed.
-
-    :param value: int/str/Enum value to be found in records
-    :return: record from record_list that has specified value
+d in records
+    :return: record from record_list that has s
+    :param value: int/str/Enum value to be founpecified value
     """
     assert isinstance(value, int) or isinstance(value, str) or isinstance(value, Color)
     split = split_list(record_list)
