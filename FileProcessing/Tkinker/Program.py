@@ -6,13 +6,12 @@ import traceback
 import xml.etree.cElementTree as ET
 from datetime import datetime
 
-
 default_config = {
     'Language': 'English',
     'Encoding': 'utf-8',
-    'Data path': 'data.dat',
-    'Export path': 'export.csv',
-    'Error path': 'error.log'
+    'Data path': './data.dat',
+    'Export path': './export.csv',
+    'Error path': './error.log'
 }
 config_path = 'cfg.json'
 current_config = {}
@@ -35,7 +34,7 @@ def load_data():
         try:
             while True:
                 person = pickle.load(file)
-                person_list.append(person.get_as_list())
+                person_list.append(person)
         except EOFError:
             return person_list
 
@@ -46,9 +45,13 @@ def create_config():
 
 
 def load_config():
-    with open(config_path, 'r') as file:
-        global current_config
-        current_config = json.load(file)
+    global current_config
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as file:
+            current_config = json.load(file)
+    else:
+        create_config()
+        current_config = default_config
 
 
 def save_changes_to_config(lang, enc, data_path, export_path, error_path):
@@ -68,12 +71,11 @@ def export_data_to_csv():
         writer.writerows(data)
 
 
-def log_error(exc_info: tuple):
+def log_error(exc_type, exc_value, exc_tb):
     error_time = datetime.today().__str__()
-    exc_type, exc_value, exc_tb = exc_info
     traceback_str = ''
     for trb in traceback.format_tb(exc_tb):
-        traceback_str += trb.replace('\n', '')
+        traceback_str += trb
     if not os.path.exists(current_config['Error path']):
         root = ET.Element("Error_log")
         tree = ET.ElementTree(root)
@@ -87,16 +89,3 @@ def log_error(exc_info: tuple):
     ET.indent(tree, space="\t", level=0)
     tree.write(current_config['Error path'])
 
-
-# p = Person('Max', 'Kuzma', '2002-2-2', 'job', '123123123')
-# p2 = Person('Max', 'Kuzma', '2002-2-2', 'job', '123123123')
-# insert_data(p)
-# insert_data(p2)
-# load_data()
-# export_data_to_csv()
-
-# try:
-#     1/0
-# except Exception as e:
-#     log_error(sys.exc_info())
-load_config()
