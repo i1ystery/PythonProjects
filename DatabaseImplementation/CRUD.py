@@ -1,5 +1,5 @@
 import pyodbc
-conn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=PC398;DATABASE=PV_Users;UID=app1user;PWD=student')
+conn = pyodbc.connect('DRIVER={SQL Server};SERVER=MYSTERY;DATABASE=app1;UID=app2user;PWD=student')
 cursor = conn.cursor()
 cursor.execute('Select * from Users')
 
@@ -9,7 +9,7 @@ def print_cursor():
         print(i)
 
 
-def select_by_username(username:str):
+def select_by_username(username: str):
     assert isinstance(username, str) and len(username) <= 40
     cursor.execute(f'''Select * from Users where username = '{username}' ''')
     print_cursor()

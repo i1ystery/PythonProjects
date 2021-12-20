@@ -14,11 +14,11 @@ def save_json(company_name, ico, phones, description):
             data_to_write = json.load(f)
             data_to_write['Businesses'].append(input_data)
         with open('businesses.json', 'w', encoding='utf-8') as f:
-            json.dump(data_to_write, f, ensure_ascii=False, sort_keys=True, indent=True)
+            json.dump(data_to_write, f, ensure_ascii=False, indent=True)
     else:
         data_to_write = {'Businesses': [input_data]}
         with open('businesses.json', 'w', encoding='utf-8') as f:
-            json.dump(data_to_write, f, ensure_ascii=False, sort_keys=True, indent=True)
+            json.dump(data_to_write, f, ensure_ascii=False, indent=True)
 
 
 def load_json():
