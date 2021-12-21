@@ -1,7 +1,0 @@
-{
- "Language": "English",
- "Encoding": "utf-8",
- "Data path": "D:/GitHub/FileProcessing/Tkinker/data.dat",
- "Export path": "D:/GitHub/FileProcessing/Tkinker/export.csv",
- "Error path": "./error.log"
-}
