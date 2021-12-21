@@ -1,0 +1,67 @@
+{
+ "Businesses": [
+  {
+   "Company name": "SPSE Jecna",
+   "Description": "Škola nabízí obory:\n- Informatika\n- Elektrotechnika\na její ředitel říka: \"Je to nejlepší škola v Praze\".\n",
+   "ICO": 61385301,
+   "Phones": [
+    "224941469",
+    "224942066"
+   ]
+  },
+  {
+   "Company name": "Seznam.cz",
+   "Description": null,
+   "ICO": 26168685,
+   "Phones": "234694111"
+  },
+  {
+   "Company name": "PPF A.S",
+   "Description": "Zkratka 'PPF' znamená první privatizační fond.",
+   "ICO": 25099345,
+   "Phones": null
+  },
+  {
+   "Company name": "SPSE Jecna",
+   "ICO": 61385301,
+   "Phones": [
+    "224941469",
+    "224942066"
+   ],
+   "Description": "Škola nabízí obory:\n- Informatika\n- Elektrotechnika\na její ředitel říka: \"Je to nejlepší škola v Praze\".\n"
+  },
+  {
+   "Company name": "Seznam.cz",
+   "ICO": 26168685,
+   "Phones": "234694111",
+   "Description": null
+  },
+  {
+   "Company name": "PPF A.S",
+   "ICO": 25099345,
+   "Phones": null,
+   "Description": "Zkratka 'PPF' znamená první privatizační fond."
+  },
+  {
+   "Company name": "SPSE Jecna",
+   "ICO": 61385301,
+   "Phones": [
+    "224941469",
+    "224942066"
+   ],
+   "Description": "Škola nabízí obory:\n- Informatika\n- Elektrotechnika\na její ředitel říka: \"Je to nejlepší škola v Praze\".\n"
+  },
+  {
+   "Company name": "Seznam.cz",
+   "ICO": 26168685,
+   "Phones": "234694111",
+   "Description": null
+  },
+  {
+   "Company name": "PPF A.S",
+   "ICO": 25099345,
+   "Phones": null,
+   "Description": "Zkratka 'PPF' znamená první privatizační fond."
+  }
+ ]
+}

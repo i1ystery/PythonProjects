@@ -58,6 +58,7 @@ class DBConnection:
             print(a)
 
 
+
 class UserDAO(object):
 
     def __init__(self):
@@ -86,18 +87,33 @@ class UserDAO(object):
             with open(path, 'r') as file:
                 reader = csv.reader(file)
                 for row in reader:
-                    print(row)
-                    self.insert_user(*row)
-            #self.conn.commit()
+                    self.insert_user(row[0], int(row[1]), row[2])
+            self.conn.commit()
         except Exception as e:
             print(e)
-            #self.conn.rollback()
+            self.conn.rollback()
 
+    def export_users(self, path):
+        export = {
+            "Entries": []
+        }
+        for entry in self.get_all_users():
+            export['Entries'].append(
+                {
+                    'id': entry[0],
+                    'username': entry[1],
+                    'favorite_number': entry[2],
+                    'favorite_color': entry[3]
+                }
+            )
+        with open(path, 'w') as file:
+            json.dump(export, file, indent=True)
 
 
 if __name__ == '__main__':
     a = UserDAO()
-    # print(a.get_all_users())
+    print(a.get_all_users())
+    a.export_users('export_users.json')
     # print(a.get_users_by_username('Matej'))
     # a.insert_user('Dima', 6853368, 'Slepa')
     # print(a.get_all_users())
@@ -105,5 +121,5 @@ if __name__ == '__main__':
     # print(a.get_all_users())
     # a.delete_user('Dima')
     # print(a.get_all_users())
-    a.import_users('insert.csv')
-    print(a.get_all_users())
+    # a.import_users('insert.csv')
+    # print(a.get_all_users())

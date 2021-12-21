@@ -6,6 +6,7 @@ import traceback
 import xml.etree.cElementTree as ET
 from datetime import datetime
 
+
 default_config = {
     'Language': 'English',
     'Encoding': 'utf-8',
