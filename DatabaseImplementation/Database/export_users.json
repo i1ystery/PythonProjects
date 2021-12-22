@@ -1,0 +1,10 @@
+{
+ "Entries": [
+  {
+   "id": 1,
+   "username": "Matej",
+   "favorite_number": 1234,
+   "favorite_color": "Blue"
+  }
+ ]
+}

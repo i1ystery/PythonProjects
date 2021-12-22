@@ -1,7 +1,0 @@
-{
- "Language": "English",
- "Encoding": "utf-8",
- "Data path": "./data.dat",
- "Export path": "./export.csv",
- "Error path": "./error.log"
-}
