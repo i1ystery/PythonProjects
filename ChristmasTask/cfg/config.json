@@ -1,0 +1,7 @@
+{
+ "SERVER": "MYSTERY",
+ "DATABASE": "Shop",
+ "UID": "app2user",
+ "PWD": "student",
+ "EXPORT_PATH": "../exports"
+}

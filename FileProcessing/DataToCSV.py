@@ -26,7 +26,7 @@ def load_csv():
         return rows
 
 
-save_csv("SPSE Jecna", 61385301, ["224941469","224942066"], """Škola nabízí obory: 
+save_csv("SPSE Jecna", 61385301, ["224941469", "224942066"], """Škola nabízí obory: 
 - Informatika
 - Elektrotechnika
 a její ředitel říka: "Je to nejlepší škola v Praze".
