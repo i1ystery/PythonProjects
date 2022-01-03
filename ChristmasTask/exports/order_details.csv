@@ -1,0 +1,3 @@
+details_id,product_id,order_id,quantity,final_price
+1,1,1,5,4500.0
+2,1,2,5,4500.0
