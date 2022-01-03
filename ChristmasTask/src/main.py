@@ -1,20 +1,26 @@
-from CustomerDAO import *
-from ProductDAO import *
-from OrderDAO import *
+# from CustomerDAO import *
+# from ProductDAO import *
+# from OrderDAO import *
 import os
-import datetime
+# import datetime
 
 
-def choice(*args):
-    for arg in args:
-        print(arg)
+def make_choice(values: list):
+    while True:
+        choices = dict(enumerate(values))
+        for key in choices.keys():
+            print(f'{key}) {choices[key]}')
+        action = input('Choose action: ')
+        if int(action) in choices.keys():
+            return choices[key]
+        else:
+            print('Incorrect choice.')
 
 
 def start():
     cls()
     print('Shop Database Application')
-    print('Choose action: ')
-    choice('Insert Product', 'Insert Customer', 'Insert Order', '')
+    print(make_choice(['Insert Product', 'Insert Customer', 'Insert Order']))
 
 
 def cls():
@@ -22,4 +28,4 @@ def cls():
 
 
 if __name__ == '__main__':
-    pass
+    start()
