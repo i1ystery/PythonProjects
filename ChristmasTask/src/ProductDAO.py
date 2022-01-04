@@ -17,7 +17,7 @@ class Product:
         assert datetime.strptime(expiration_date, '%Y-%m-%d'), 'Incorrect expiration date'
         assert isinstance(product_category, ProductCategory)
         assert isinstance(is_edible, bool)
-        assert isinstance(product_price, float) and product_price > 0, 'Incorrect product price'
+        assert float(product_price) and product_price > 0, 'Incorrect product price'
         self.product_id = product_id
         self.product_name = product_name
         self.product_price = product_price
