@@ -6,6 +6,9 @@ from DBConnection import DBConnection
 
 
 class ProductCategory(Enum):
+    """
+    ENUM FOR UNCHANGEABLE TABLE CATEGORIES IN DB
+    """
     CONVENIENCE = 1
     SHOPPING = 2
     SPECIALTY = 3
@@ -34,18 +37,29 @@ class ProductDAO(object):
         self.conn = DBConnection()
         self.auto_commit = True
 
-    def get_all_products(self):
+    def get_all_products(self) -> list[Product]:
+        """
+        Selects all Products from the database and returns them
+        :return: List with Product Objects
+        """
         raw_products = self.conn.execute_command("SELECT * from Products").fetchall()
         products = []
         for raw_product in raw_products:
             products.append(Product(raw_product[1], raw_product[2], bool(raw_product[3]), raw_product[5], ProductCategory(raw_product[4]), raw_product[0]))
         return products
 
-    def get_product_by_id(self, product_id):
+    def get_product_by_id(self, product_id) -> Product:
+        """
+        Selects product by given id
+        :return: Product Object
+        """
         raw_product = self.conn.execute_command("SELECT * from Products where product_id = ?", product_id).fetchone()
         return Product(raw_product[1], raw_product[2], bool(raw_product[3]), raw_product[5], ProductCategory(raw_product[4]), raw_product[0])
 
     def save(self, product: Product):
+        """
+        Inserts new/Updates existing Product in the DB
+        """
         data = [product.product_name, product.product_price, product.is_edible, product.product_category.value, product.expiration_date]
         if product.product_id is None:
             self.conn.execute_command("INSERT INTO Products values (?, ?, ?, ?, ?)", data, self.auto_commit)
@@ -56,9 +70,16 @@ class ProductDAO(object):
                                       data, self.auto_commit)
 
     def delete_product(self, product: Product):
+        """
+        Deletes given Product from the DB
+        """
         self.conn.execute_command("DELETE FROM Products where product_id = ?", product.product_id, self.auto_commit)
 
     def import_products(self, file_path):
+        """
+        Imports Products from given .csv file
+        :param file_path: path to .csv file with Products
+        """
         try:
             self.auto_commit = False
             with open(file_path, 'r') as file:
@@ -74,4 +95,8 @@ class ProductDAO(object):
             raise e
 
     def export_products(self, path):
+        """
+        Exports all rows from Products in the database as .csv file at the specified path.
+        :param path: Path that the .csv file will be saved
+        """
         pd.DataFrame(pd.read_sql_query("SELECT * from ProductsExport", self.conn.con)).to_csv(path + '/products.csv', index=False)

@@ -11,32 +11,49 @@ from ProductDAO import *
 from CustomerDAO import *
 
 
-def make_choice(question: str, values: list):
+def make_choice(action: str, values: list):
+    """
+    Makes user choose one object from values argument
+    :param action: Action that user should do
+    :param values: List of values from which user must select one
+    :return: Selected object from list
+    """
     try:
         choices = dict(enumerate(values, 1))
         for key in choices.keys():
             print(f'\033[1;35;40mOption {key})\033[0m\n{choices[key]}\n')
-        print(question)
-        action = input('Choose option number: ')
+        action = input(f'{action}(option number): ')
         if int(action) in choices.keys():
             return choices[int(action)]
         else:
             raise ValueError
     except ValueError:
         print('Invalid input')
-        make_choice(question, values)
+        make_choice(action, values)
 
 
 def cls():
+    """
+    Cleans console
+    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def back_to_menu(from_method):
+    """
+    Asks user if user want go back to main menu.
+    :param from_method: Function to call if user don't want to go back to menu.
+    """
     back = make_choice('Done.\nDo you want go back to menu?', ['Yes', 'No'])
     menu() if back == 'Yes' else from_method()
 
 
-def create_product(product_id=None):
+def create_product(product_id=None) -> Product:
+    """
+    Makes user create new product or existing product.
+    If product_id argument is given, makes user to change existing product otherwise creates new product
+    :return: Product object
+    """
     try:
         cls()
         name = input('Product name: ')
@@ -62,13 +79,18 @@ def create_product(product_id=None):
         crud_product()
 
 
-def create_order(order_id=None):
+def create_order(existing_order=None):
+    """
+    Makes user create new order or change existing order.
+    :param existing_order: Order object. If given, makes user to change existing order otherwise creates new order.
+    :return: Order Object
+    """
     try:
         cls()
         customer_dao = CustomerDAO()
         customers = customer_dao.get_all_customers()
         customer = make_choice('Choose customer: ', customers)
-        if order_id is not None:
+        if existing_order is not None:
             date = input('Enter order date and time YYYY-MM-DD HH:MM:SS')
         else:
             date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -77,18 +99,37 @@ def create_order(order_id=None):
         address = input('Address: ')
         zip_code = int(input('Zip code: '))
         tracking = input('Tracking code: ')
-        order = Order(customer, date, name, city, address, zip_code, tracking, order_id)
+        order_id = existing_order.order_id if existing_order is not None else None
+        order_details = existing_order.order_details if existing_order is not None else list
+        order = Order(customer, date, name, city, address, zip_code, tracking, order_id, order_details)
         product_dao = ProductDAO()
         products = product_dao.get_all_products()
-        choose_products(products, order)
+        if existing_order is None:
+            add_products(products, order)
+            a = make_choice('Do you want to remove products from this order?: ', ['Yes', 'No'])
+            remove_products(order, order.order_details) if a == 'Yes' else None
+        else:
+            a = make_choice('Do you want to add products to this order?: ', ['Yes', 'No'])
+            add_products(products, order) if a == 'Yes' else None
+            a = make_choice('Do you want to remove products from this order?: ', ['Yes', 'No'])
+            remove_products(order, order.order_details) if a == 'Yes' else None
         return order
     except AssertionError as a:
         print(a)
         time.sleep(3)
         crud_order()
+    except ValueError:
+        print('Invalid input value')
+        time.sleep(3)
+        crud_order()
 
 
 def create_customer(customer_id=None):
+    """
+    Makes user create a new or change existing customer
+    :param customer_id: If given, makes user to change existing customer otherwise creates new customer
+    :return: Customer Object
+    """
     try:
         cls()
         name = input('Name: ')
@@ -109,6 +150,9 @@ def create_customer(customer_id=None):
 
 
 def crud_product():
+    """
+    Create Read Update Delete UI for Products.
+    """
     cls()
     product_dao = ProductDAO()
     products = product_dao.get_all_products()
@@ -151,6 +195,9 @@ def crud_product():
 
 
 def crud_customer():
+    """
+    Create Read Update Delete UI for Customers.
+    """
     cls()
     customer_dao = CustomerDAO()
     customers = customer_dao.get_all_customers()
@@ -201,6 +248,9 @@ def crud_customer():
 
 
 def crud_order():
+    """
+    Create Read Update Delete UI for Orders.
+    """
     cls()
     order_dao = OrderDAO()
     customer_dao = CustomerDAO()
@@ -226,7 +276,7 @@ def crud_order():
         back_to_menu(crud_order)
     if choice == 'Update order':
         order = make_choice('Choose order: ', orders)
-        new_order = create_order(order.order_id)
+        new_order = create_order(order)
         order_dao.save(new_order)
         back_to_menu(crud_order)
     if choice == 'Delete order':
@@ -252,22 +302,44 @@ def crud_order():
         menu()
 
 
-def choose_products(products: list[Product], order: Order):
+def add_products(products: list[Product], order: Order):
+    """
+    Adds product to an order specified in args
+    :param products: Products to add into order
+    :param order: An order to which products are added or removed from it
+    """
     try:
-        product = make_choice('Choose product: ', products)
+        action = "Choose product to add to an order: "
+        product = make_choice(action, products)
         quantity = input('Quantity: ')
         quantity = int(quantity)
         order.add_product(product, quantity)
         products.remove(product)
-        print('Done')
         more = make_choice('Do you want to add another product?', ['Yes', 'No'])
-        choose_products(products, order) if more == 'Yes' and products else None
+        add_products(products, order) if more == 'Yes' and products else None
     except ValueError:
-        print('Invalid input value')
-        choose_products(products, order)
+        print('Invalid quantity value')
+        add_products(products, order)
+
+
+def remove_products(order: Order, order_details: list[OrderDetails]):
+    """
+    Removes product from an order
+    :param order: An order from products are removed.
+    :param order_details: Order OrderDetails list
+    """
+    product = make_choice('Choose product to delete from an order: ', order_details)
+    order.remove_product(product)
+    order_details.remove(product)
+    more = make_choice('Do you want to remove another product?', ['Yes', 'No'])
+    remove_products(order, order_details) if more == 'Yes' and order_details else None
 
 
 def generate_report():
+    """
+    Prints Aggregate report from DB
+    :return:
+    """
     cls()
     dao = OrderDAO()
     print(dao.get_report())
@@ -277,7 +349,7 @@ def generate_report():
 
 def log_error(exc_type: type, exc_value, exc_tb: traceback):
     """
-    Logs exception into XML file
+    Logs errors into XML file
     :param exc_type: Exception type from sys.exc_info()
     :param exc_value: Exception value from sys.exc_info()
     :param exc_tb: Traceback from sys.exc_info()
@@ -306,6 +378,9 @@ def log_error(exc_type: type, exc_value, exc_tb: traceback):
 
 
 def menu():
+    """
+    Main Menu UI
+    """
     try:
         cls()
         dao = OrderDAO()

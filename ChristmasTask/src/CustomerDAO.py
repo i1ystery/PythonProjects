@@ -1,5 +1,4 @@
 import csv
-
 import pandas as pd
 from DBConnection import DBConnection
 
@@ -30,6 +29,10 @@ class CustomerDAO(object):
         self.auto_commit = True
 
     def get_all_customers(self):
+        """
+        Selects all Customers from the database and returns them
+        :return: List with Customers Objects
+        """
         raw_customers = self.conn.execute_command("SELECT * from Customers").fetchall()
         customers = []
         for raw_customer in raw_customers:
@@ -38,11 +41,18 @@ class CustomerDAO(object):
         return customers
 
     def get_customer_by_id(self, customer_id):
+        """
+        Selects customer by given id
+        :return: Customer Object
+        """
         raw_customer = self.conn.execute_command("SELECT * from Customers where customer_id = ?", customer_id).fetchone()
         data = (*raw_customer[1:], raw_customer[0])
         return Customer(*data)
 
     def save(self, customer: Customer):
+        """
+        Inserts new/Updates existing Customer in the DB
+        """
         data = [customer.customer_name, customer.customer_lastname, customer.city, customer.phone_number, customer.email, customer.money]
         if customer.customer_id is None:
             self.conn.execute_command("INSERT INTO Customers values (?, ?, ?, ?, ?, ?)", data,
@@ -54,9 +64,18 @@ class CustomerDAO(object):
                                       data, self.auto_commit)
 
     def delete_customer(self, customer: Customer):
+        """
+        Deletes given Customer from the DB
+        """
         self.conn.execute_command("DELETE FROM Customers where customer_id = ?", customer.customer_id, self.auto_commit)
 
     def send_money_to_customer(self, from_customer: Customer, to_customer: Customer, amount: float):
+        """
+        Transfers money from customer to customer
+        :param from_customer: Customer Object
+        :param to_customer: Customer Object
+        :param amount: Amount of money to transfer
+        """
         try:
             self.auto_commit = False
             assert from_customer.money >= amount, 'You can\'t transfer more that customer have'
@@ -69,6 +88,10 @@ class CustomerDAO(object):
             raise
 
     def import_customers(self, file_path):
+        """
+        Imports Customers from given .csv file
+        :param file_path: path to .csv file with Customers
+        """
         try:
             self.auto_commit = False
             with open(file_path, 'r') as file:
@@ -85,5 +108,9 @@ class CustomerDAO(object):
             raise
 
     def export_customers(self, path):
+        """
+        Exports all rows from Customers in the database as .csv file at the specified path.
+        :param path: Path that the .csv file will be saved
+        """
         pd.DataFrame(pd.read_sql_query("SELECT * from CustomersExport", self.conn.con)).to_csv(path + '/customers.csv', index=False)
 

@@ -18,11 +18,15 @@ class OrderDetails:
         return f'Details ID: {self.details_id}\nProduct: {self.product.product_name}\nQuantity: {self.quantity}\nFinal price: {self.final_price}'
 
     def return_as_insert_list(self):
+        """
+        Returns OrderDetail object as list with all attributes for insert into the DB
+        :return:
+        """
         return self.product.product_id, self.order_id, self.quantity, self.final_price
 
 
 class Order:
-    def __init__(self, customer: Customer, order_date: str, ship_name: str, ship_city: str, ship_address: str, ship_zip: int, tracking: str, order_id=None):
+    def __init__(self, customer: Customer, order_date: str, ship_name: str, ship_city: str, ship_address: str, ship_zip: int, tracking: str, order_id=None, order_details=None):
         assert isinstance(customer, Customer), 'Incorrect customer'
         assert datetime.strptime(str(order_date), '%Y-%m-%d %H:%M:%S'), 'Incorrect order date'
         assert isinstance(ship_name, str) and len(ship_name) <= 50, 'Incorrect shipment name'
@@ -38,13 +42,26 @@ class Order:
         self.ship_address = ship_address
         self.ship_zip = ship_zip
         self.tracking = tracking
-        self.order_details = []
+        if not order_details:
+            self.order_details = []
+        else:
+            self.order_details = order_details
 
     def add_product(self, product: Product, quantity: int):
+        """
+        Creates OrderDetails object with given product and it's quantity.
+        Afterwards adds it to the order
+        """
         assert isinstance(product, Product), 'Incorrect product'
         assert isinstance(quantity, int) and quantity > 0, 'Incorrect quantity'
         ord_det = OrderDetails(product, quantity)
         self.order_details.append(ord_det)
+
+    def remove_product(self, order_detail: OrderDetails):
+        """
+        Removes given OrderDetails Object from an order
+        """
+        self.order_details.remove(order_detail)
 
     def __str__(self):
         s = f'Order ID: {self.order_id}\nCustomer: {self.customer}\nOrder date: {self.order_date }\nShipment name: {self.ship_name}' \
@@ -59,7 +76,11 @@ class OrderDAO(object):
         self.conn = DBConnection()
         self.auto_commit = True
 
-    def get_all_orders(self):
+    def get_all_orders(self) -> list[Order]:
+        """
+        Selects all Orders from the database and returns them
+        :return: List with Order Objects
+        """
         raw_orders = self.conn.execute_command("SELECT * from Orders").fetchall()
         orders = []
         for raw_order in raw_orders:
@@ -70,7 +91,11 @@ class OrderDAO(object):
             orders.append(order)
         return orders
 
-    def get_order_det_by_id(self, order_id: int):
+    def get_order_det_by_id(self, order_id: int) -> list[OrderDetails]:
+        """
+        Selects all OrderDetails associated with Order that the given order_id belongs to
+        :return: List with OrderDetails Objects
+        """
         raw_details = self.conn.execute_command("SELECT * from OrderDetails where order_id = ?", order_id).fetchall()
         details = []
         for raw_detail in raw_details:
@@ -80,6 +105,9 @@ class OrderDAO(object):
         return details
 
     def save(self, order: Order):
+        """
+        Inserts new/Updates existing Order in the DB
+        """
         assert order.order_details
         order_data = [order.customer.customer_id, order.order_date, order.ship_name, order.ship_city, order.ship_address, order.ship_zip, order.tracking]
         if order.order_id is None:
@@ -107,6 +135,9 @@ class OrderDAO(object):
                     self.conn.execute_command("DELETE from OrderDetails where details_id = ?", details_id, self.auto_commit)
 
     def delete_order(self, order: Order):
+        """
+        Deletes given Order from the DB
+        """
         try:
             self.auto_commit = False
             for details in order.order_details:
@@ -118,10 +149,19 @@ class OrderDAO(object):
             self.auto_commit = True
             raise e
 
-    def get_report(self):
+    def get_report(self) -> pd.DataFrame | pd.Iterator[pd.DataFrame]:
+        """
+        Executes stored procedure in the DB that generates Database Aggregate Report
+        :return: Aggregate report as pandas DataFrames
+        """
         return pd.read_sql('EXEC AggregateReport', self.conn.con)
 
     def import_orders(self, order_path, order_details_path):
+        """
+        Imports Orders and OrdersDetails from given .csv files
+        :param order_path: path to .csv file with Orders
+        :param order_details_path: path to .csv file with OrderDetails
+        """
         try:
             self.auto_commit = False
             with open(order_path, 'r') as file:
@@ -137,10 +177,14 @@ class OrderDAO(object):
             self.conn.commit()
             self.auto_commit = True
         except Exception as e:
-            print(e)
             self.conn.rollback()
             self.auto_commit = True
+            raise
 
     def export_orders(self, path):
+        """
+        Exports all rows from the Orders and Order Details tables in the database as .csv files at the specified path.
+        :param path: Path that the .csv file will be saved
+        """
         pd.DataFrame(pd.read_sql_query("SELECT * from OrdersExport", self.conn.con)).to_csv(path+'/orders.csv', index=False)
         pd.DataFrame(pd.read_sql_query("SELECT * from OrderDetailsExport", self.conn.con)).to_csv(path + '/order_details.csv', index=False)
