@@ -1,8 +1,7 @@
-import csv
 from CustomerDAO import *
 from ProductDAO import *
 import pandas as pd
-
+import csv
 
 class OrderDetails:
     def __init__(self, product: Product, quantity: int, details_id=None, order_id=None, final_price=None):
@@ -23,12 +22,13 @@ class OrderDetails:
 
 
 class Order:
-    def __init__(self, customer: Customer, order_date: datetime, ship_name: str, ship_city: str, ship_address: str, ship_zip: str, tracking, order_id=None):
+    def __init__(self, customer: Customer, order_date: str, ship_name: str, ship_city: str, ship_address: str, ship_zip: int, tracking: str, order_id=None):
         assert isinstance(customer, Customer), 'Incorrect customer'
+        assert datetime.strptime(str(order_date), '%Y-%m-%d %H:%M:%S'), 'Incorrect order date'
         assert isinstance(ship_name, str) and len(ship_name) <= 50, 'Incorrect shipment name'
         assert isinstance(ship_city, str) and len(ship_city) <= 25, 'Incorrect shipment city'
         assert isinstance(ship_address, str) and len(ship_address) <= 100, 'Incorrect shipment address'
-        assert isinstance(ship_zip, str) and len(ship_zip) <= 20, 'Incorrect shipment zip'
+        assert isinstance(ship_zip, int), 'Incorrect shipment zip'
         assert isinstance(tracking, str) and len(tracking) <= 50, 'Incorrect tracking code'
         self.order_id = order_id
         self.customer = customer
@@ -46,12 +46,9 @@ class Order:
         ord_det = OrderDetails(product, quantity)
         self.order_details.append(ord_det)
 
-    def remove_product(self, order_detail: OrderDetails):
-        self.order_details.remove(order_detail)
-
     def __str__(self):
         s = f'Order ID: {self.order_id}\nCustomer: {self.customer}\nOrder date: {self.order_date }\nShipment name: {self.ship_name}' \
-               f'\nShipment city: {self.ship_city}\nShipment address: {self.ship_address}\nShipment zip: {self.ship_zip}\nTracking code: {self.tracking}\n'
+               f'\nShipment city: {self.ship_city}\nShipment address: {self.ship_address}\nShipment zip: {self.ship_zip}\nTracking code: {self.tracking}\nProducts:\n'
         for products in self.order_details:
             s += products.__str__() + '\n'
         return s
@@ -79,12 +76,8 @@ class OrderDAO(object):
         for raw_detail in raw_details:
             prod_dao = ProductDAO()
             product = prod_dao.get_product_by_id(raw_detail[1])
-            print(product)
             details.append(OrderDetails(product, raw_detail[3], raw_detail[0], raw_detail[2], raw_detail[4]))
         return details
-
-    def get_orders_by_customer(self, customer: Customer):
-        return self.conn.execute_command("SELECT * from Orders where order_customer = ?", customer.customer_id).fetchall()
 
     def save(self, order: Order):
         assert order.order_details
@@ -115,31 +108,32 @@ class OrderDAO(object):
 
     def delete_order(self, order: Order):
         try:
+            self.auto_commit = False
             for details in order.order_details:
-                self.conn.execute_command("DELETE from OrderDetails where order_id = ?", order.order_id)
-            self.conn.execute_command("DELETE from Orders where order_id = ?", order.order_id)
+                self.conn.execute_command("DELETE from OrderDetails where order_id = ?", order.order_id, self.auto_commit)
+            self.conn.execute_command("DELETE from Orders where order_id = ?", order.order_id, self.auto_commit)
             self.conn.commit()
         except Exception as e:
-            print(e)
             self.conn.rollback()
+            self.auto_commit = True
+            raise e
 
-    def import_orders(self):
+    def get_report(self):
+        return pd.read_sql('EXEC AggregateReport', self.conn.con)
+
+    def import_orders(self, order_path, order_details_path):
         try:
             self.auto_commit = False
-            with open(self.conn.config['EXPORT_PATH'] + '/orders.csv', 'r') as file:
+            with open(order_path, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)
-                self.conn.execute_command("SET IDENTITY_INSERT Orders ON")
                 for row in reader:
-                    self.conn.execute_command('INSERT INTO Orders values (?, ?, ?, ?, ?, ?, ?, ?)', row, self.auto_commit)
-                self.conn.execute_command("SET IDENTITY_INSERT Orders OFF")
-            with open(self.conn.config['EXPORT_PATH'] + '/order_details.csv', 'r') as file:
+                    self.conn.execute_command('INSERT INTO Orders values (?, ?, ?, ?, ?, ?, ?)', row, self.auto_commit)
+            with open(order_details_path, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)
-                self.conn.execute_command("SET IDENTITY_INSERT OrderDetails ON")
                 for row in reader:
-                    self.conn.execute_command('INSERT INTO OrderDetails values (?, ? ,?, ?, ?)', row, self.auto_commit)
-                self.conn.execute_command("SET IDENTITY_INSERT OrderDetails ON")
+                    self.conn.execute_command('INSERT INTO OrderDetails values (? ,?, ?, ?)', row, self.auto_commit)
             self.conn.commit()
             self.auto_commit = True
         except Exception as e:
@@ -147,6 +141,6 @@ class OrderDAO(object):
             self.conn.rollback()
             self.auto_commit = True
 
-    def export_orders(self):
-        pd.DataFrame(pd.read_sql_query("SELECT * from Orders", self.conn.con)).to_csv(self.conn.config['EXPORT_PATH']+'/orders.csv', index=False)
-        pd.DataFrame(pd.read_sql_query("SELECT * from OrderDetails", self.conn.con)).to_csv(self.conn.config['EXPORT_PATH'] + '/order_details.csv', index=False)
+    def export_orders(self, path):
+        pd.DataFrame(pd.read_sql_query("SELECT * from OrdersExport", self.conn.con)).to_csv(path+'/orders.csv', index=False)
+        pd.DataFrame(pd.read_sql_query("SELECT * from OrderDetailsExport", self.conn.con)).to_csv(path + '/order_details.csv', index=False)

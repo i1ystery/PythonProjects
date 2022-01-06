@@ -1,16 +1,17 @@
+import csv
+
 import pandas as pd
 from DBConnection import DBConnection
-import csv
 
 
 class Customer:
     def __init__(self, customer_name, customer_lastname, city, phone_number, email, money, customer_id=None):
-        assert isinstance(customer_name, str) and len(customer_name) <= 25
-        assert isinstance(customer_name, str) and len(customer_name) <= 25
-        assert isinstance(city, str) and len(city) <= 25
-        assert isinstance(phone_number, int)
-        assert isinstance(email, str) and len(email) <= 25
-        assert isinstance(money, float)
+        assert isinstance(customer_name, str) and len(customer_name) <= 25, 'Incorrect customer name'
+        assert isinstance(customer_name, str) and len(customer_name) <= 25, 'Incorrect customer lastname'
+        assert isinstance(city, str) and len(city) <= 25, 'Incorrect city'
+        assert isinstance(phone_number, int), 'Incorrect phone number'
+        assert isinstance(email, str) and len(email) <= 25, 'Incorrect email'
+        assert isinstance(money, float) and money >= 0.0, 'Incorrect amount of money'
         self.customer_id = customer_id
         self.customer_name = customer_name
         self.customer_lastname = customer_lastname
@@ -41,11 +42,6 @@ class CustomerDAO(object):
         data = (*raw_customer[1:], raw_customer[0])
         return Customer(*data)
 
-    def get_customer_by_fullname(self, name, lastname):
-        raw_customer = self.conn.execute_command("SELECT * from Customers where customer_name = ? and customer_lastname = ?", (name, lastname)).fetchone()
-        data = (*raw_customer[1:], raw_customer[0])
-        return Customer(*data)
-
     def save(self, customer: Customer):
         data = [customer.customer_name, customer.customer_lastname, customer.city, customer.phone_number, customer.email, customer.money]
         if customer.customer_id is None:
@@ -63,32 +59,31 @@ class CustomerDAO(object):
     def send_money_to_customer(self, from_customer: Customer, to_customer: Customer, amount: float):
         try:
             self.auto_commit = False
-            assert from_customer.money >= amount
+            assert from_customer.money >= amount, 'You can\'t transfer more that customer have'
             self.conn.execute_command('UPDATE Customers set money = money - ? where customer_id = ?', (amount, from_customer.customer_id))
             self.conn.execute_command('UPDATE Customers set money = money + ? where customer_id = ?', (amount, to_customer.customer_id))
             self.auto_commit = True
-        except Exception as e:
-            print(e)
+        except Exception:
             self.conn.rollback()
             self.auto_commit = True
+            raise
 
-    def import_customers(self):
+    def import_customers(self, file_path):
         try:
             self.auto_commit = False
-            with open(self.conn.config['EXPORT_PATH'] + '/customers.csv', 'r') as file:
+            with open(file_path, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)
-                self.conn.execute_command("SET IDENTITY_INSERT Customers ON")
                 for row in reader:
-                    self.conn.execute_command('INSERT INTO Customers values (?, ?, ?, ?, ?, ?, ?)', row, self.auto_commit)
-                self.conn.execute_command("SET IDENTITY_INSERT Customers OFF")
+                    print(row)
+                    self.conn.execute_command('INSERT INTO Customers values (?, ?, ?, ?, ?, ?)', row, self.auto_commit)
             self.conn.commit()
             self.auto_commit = True
         except Exception as e:
-            print(e)
             self.conn.rollback()
             self.auto_commit = True
+            raise
 
-    def export_customers(self):
-        pd.DataFrame(pd.read_sql_query("SELECT * from Customers", self.conn.con)).to_csv(self.conn.config['EXPORT_PATH'] + '/customers.csv', index=False)
+    def export_customers(self, path):
+        pd.DataFrame(pd.read_sql_query("SELECT * from CustomersExport", self.conn.con)).to_csv(path + '/customers.csv', index=False)
 

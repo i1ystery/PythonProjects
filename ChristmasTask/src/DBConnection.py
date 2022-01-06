@@ -9,39 +9,38 @@ class DBConnection:
 
     def __init__(self):
         if DBConnection.con is None:
+            print('Loading...')
             self.config = self.load_config()
-            self.con = pyodbc.connect(f'DRIVER={{SQL Server}};SERVER={self.config["SERVER"]};DATABASE={self.config["DATABASE"]};UID={self.config["UID"]};PWD={self.config["PWD"]}')
-            print('Database connection opened.')
-
+            DBConnection.con = pyodbc.connect(f'DRIVER={{SQL Server}};SERVER={self.config["SERVER"]};DATABASE={self.config["DATABASE"]};UID={self.config["UID"]};PWD={self.config["PWD"]}')
     def __new__(cls):
-        if cls.instance is None:
-            cls.instance = object.__new__(cls)
-        return cls.instance
+        if DBConnection.instance is None:
+            DBConnection.instance = object.__new__(cls)
+        return DBConnection.instance
 
     def __del__(self):
-        if self.con is not None:
-            self.con.close()
-            print('Database connection closed.')
+        if DBConnection.con is not None:
+            DBConnection.con.close()
 
     def load_config(self):
-        if os.path.exists('../cfg/config.json'):
-            with open('../cfg/config.json', 'r') as file:
+        config_path = os.path.abspath(os.path.join(os.getcwd(), '../cfg/config.json'))
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as file:
                 return json.load(file)
         else:
             raise FileNotFoundError('Config not found')
 
     def commit(self):
-        self.con.commit()
+        DBConnection.con.commit()
 
     def rollback(self):
-        self.con.rollback()
+        DBConnection.con.rollback()
 
     def execute_command(self, query, params=None, commit=False):
-        cursor = self.con.cursor()
+        cursor = DBConnection.con.cursor()
         if params is not None:
             cursor.execute(query, params)
             if commit:
-                self.con.commit()
+                DBConnection.con.commit()
         else:
             cursor.execute(query)
         return cursor

@@ -1,8 +1,8 @@
+import csv
 from datetime import datetime
 from enum import Enum
 import pandas as pd
 from DBConnection import DBConnection
-import csv
 
 
 class ProductCategory(Enum):
@@ -12,12 +12,12 @@ class ProductCategory(Enum):
 
 
 class Product:
-    def __init__(self, product_name, product_price, is_edible, expiration_date, product_category: ProductCategory, product_id=None):
+    def __init__(self, product_name: str, product_price: float, is_edible: bool, expiration_date: str, product_category: ProductCategory, product_id=None):
         assert isinstance(product_name, str) and len(product_name) <= 50, 'Incorrect product name'
         assert datetime.strptime(expiration_date, '%Y-%m-%d'), 'Incorrect expiration date'
         assert isinstance(product_category, ProductCategory)
         assert isinstance(is_edible, bool)
-        assert float(product_price) and product_price > 0, 'Incorrect product price'
+        assert float(product_price) and product_price > 0.0, 'Incorrect product price'
         self.product_id = product_id
         self.product_name = product_name
         self.product_price = product_price
@@ -45,11 +45,6 @@ class ProductDAO(object):
         raw_product = self.conn.execute_command("SELECT * from Products where product_id = ?", product_id).fetchone()
         return Product(raw_product[1], raw_product[2], bool(raw_product[3]), raw_product[5], ProductCategory(raw_product[4]), raw_product[0])
 
-    def get_product_by_name(self, product_name):
-        raw_product = self.conn.execute_command("SELECT * from Products where product_name = ?", product_name).fetchone()
-        return Product(raw_product[1], raw_product[2], bool(raw_product[3]), raw_product[5],
-                       ProductCategory(raw_product[4]), raw_product[0])
-
     def save(self, product: Product):
         data = [product.product_name, product.product_price, product.is_edible, product.product_category.value, product.expiration_date]
         if product.product_id is None:
@@ -57,28 +52,26 @@ class ProductDAO(object):
             product.product_id = self.conn.execute_command('SELECT TOP(1) product_id FROM Products ORDER BY product_id DESC').fetchone()[0]
         else:
             data.append(product.product_id)
-            self.conn.execute_command("UPDATE Products set product_name = ?, product_price = ?, is_edible = ?, product_category = ?, expiration_date = ? where product_id = ?",
+            self.conn.execute_command("UPDATE Products set product_name = ?, product_price = ?, is_edible = ?, category_id = ?, expiration_date = ? where product_id = ?",
                                       data, self.auto_commit)
 
-    def delete_customer(self, product: Product):
+    def delete_product(self, product: Product):
         self.conn.execute_command("DELETE FROM Products where product_id = ?", product.product_id, self.auto_commit)
 
-    def import_products(self):
+    def import_products(self, file_path):
         try:
             self.auto_commit = False
-            with open(self.conn.config['EXPORT_PATH'] + '/products.csv', 'r') as file:
+            with open(file_path, 'r') as file:
                 reader = csv.reader(file)
                 next(reader)
-                self.conn.execute_command("SET IDENTITY_INSERT Products ON")
                 for row in reader:
-                    self.conn.execute_command("INSERT INTO Users values (?, ?, ?, ?, ?, ?)", row, self.auto_commit)
-                self.conn.execute_command("SET IDENTITY_INSERT Products OFF")
+                    self.conn.execute_command("INSERT INTO Products values (?, ?, ?, ?, ?)", row, self.auto_commit)
             self.conn.commit()
             self.auto_commit = True
         except Exception as e:
-            print(e)
             self.conn.rollback()
             self.auto_commit = True
+            raise e
 
-    def export_products(self):
-        pd.DataFrame(pd.read_sql_query("SELECT * from Products", self.conn.con)).to_csv(self.conn.config['EXPORT_PATH'] + '/products.csv', index=False)
+    def export_products(self, path):
+        pd.DataFrame(pd.read_sql_query("SELECT * from ProductsExport", self.conn.con)).to_csv(path + '/products.csv', index=False)
