@@ -22,7 +22,7 @@ def make_choice(action: str, values: list):
         choices = dict(enumerate(values, 1))
         for key in choices.keys():
             print(f'\033[1;35;40mOption {key})\033[0m\n{choices[key]}\n')
-        action = input(f'{action}(option number): ')
+        action = input(f'{action} (option number): ')
         if int(action) in choices.keys():
             return choices[int(action)]
         else:

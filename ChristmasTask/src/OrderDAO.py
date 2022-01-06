@@ -149,7 +149,7 @@ class OrderDAO(object):
             self.auto_commit = True
             raise e
 
-    def get_report(self) -> pd.DataFrame | pd.Iterator[pd.DataFrame]:
+    def get_report(self):
         """
         Executes stored procedure in the DB that generates Database Aggregate Report
         :return: Aggregate report as pandas DataFrames

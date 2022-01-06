@@ -17,7 +17,8 @@ class ProductCategory(Enum):
 class Product:
     def __init__(self, product_name: str, product_price: float, is_edible: bool, expiration_date: str, product_category: ProductCategory, product_id=None):
         assert isinstance(product_name, str) and len(product_name) <= 50, 'Incorrect product name'
-        assert datetime.strptime(expiration_date, '%Y-%m-%d'), 'Incorrect expiration date'
+        if expiration_date:
+            assert datetime.strptime(expiration_date, '%Y-%m-%d'), 'Incorrect expiration date'
         assert isinstance(product_category, ProductCategory)
         assert isinstance(is_edible, bool)
         assert float(product_price) and product_price > 0.0, 'Incorrect product price'
