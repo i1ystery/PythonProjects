@@ -1,7 +1,9 @@
 from CustomerDAO import *
 from ProductDAO import *
+from IDBTable import IDBTable
 import pandas as pd
 import csv
+
 
 class OrderDetails:
     def __init__(self, product: Product, quantity: int, details_id=None, order_id=None, final_price=None):
@@ -26,7 +28,7 @@ class OrderDetails:
 
 
 class Order:
-    def __init__(self, customer: Customer, order_date: str, ship_name: str, ship_city: str, ship_address: str, ship_zip: int, tracking: str, order_id=None, order_details=None):
+    def __init__(self, customer: Customer, order_date: str, ship_name: str, ship_city: str, ship_address: str, ship_zip: int, tracking: str, order_id=None, order_det=None):
         assert isinstance(customer, Customer), 'Incorrect customer'
         assert datetime.strptime(str(order_date), '%Y-%m-%d %H:%M:%S'), 'Incorrect order date'
         assert isinstance(ship_name, str) and len(ship_name) <= 50, 'Incorrect shipment name'
@@ -42,10 +44,9 @@ class Order:
         self.ship_address = ship_address
         self.ship_zip = ship_zip
         self.tracking = tracking
-        if not order_details:
-            self.order_details = []
-        else:
-            self.order_details = order_details
+        self.order_details = list()
+        if order_det:
+            self.order_details = order_det
 
     def add_product(self, product: Product, quantity: int):
         """
@@ -71,12 +72,12 @@ class Order:
         return s
 
 
-class OrderDAO(object):
+class OrderDAO(IDBTable):
     def __init__(self):
         self.conn = DBConnection()
         self.auto_commit = True
 
-    def get_all_orders(self) -> list[Order]:
+    def get_all(self) -> list[Order]:
         """
         Selects all Orders from the database and returns them
         :return: List with Order Objects
@@ -85,7 +86,7 @@ class OrderDAO(object):
         orders = []
         for raw_order in raw_orders:
             cust_dao = CustomerDAO()
-            cust = cust_dao.get_customer_by_id(customer_id=raw_order[1])
+            cust = cust_dao.get_by_id(customer_id=raw_order[1])
             order = Order(cust, raw_order[2], raw_order[3], raw_order[4], raw_order[5], raw_order[6], raw_order[7], raw_order[0])
             order.order_details.extend(self.get_order_det_by_id(raw_order[0]))
             orders.append(order)
@@ -100,7 +101,7 @@ class OrderDAO(object):
         details = []
         for raw_detail in raw_details:
             prod_dao = ProductDAO()
-            product = prod_dao.get_product_by_id(raw_detail[1])
+            product = prod_dao.get_by_id(raw_detail[1])
             details.append(OrderDetails(product, raw_detail[3], raw_detail[0], raw_detail[2], raw_detail[4]))
         return details
 
@@ -134,7 +135,7 @@ class OrderDAO(object):
                 for details_id in db_details:
                     self.conn.execute_command("DELETE from OrderDetails where details_id = ?", details_id, self.auto_commit)
 
-    def delete_order(self, order: Order):
+    def delete(self, order: Order):
         """
         Deletes given Order from the DB
         """
@@ -156,7 +157,7 @@ class OrderDAO(object):
         """
         return pd.read_sql('EXEC AggregateReport', self.conn.con)
 
-    def import_orders(self, order_path, order_details_path):
+    def import_data(self, order_path, order_details_path):
         """
         Imports Orders and OrdersDetails from given .csv files
         :param order_path: path to .csv file with Orders
@@ -181,7 +182,7 @@ class OrderDAO(object):
             self.auto_commit = True
             raise
 
-    def export_orders(self, path):
+    def export_data(self, path):
         """
         Exports all rows from the Orders and Order Details tables in the database as .csv files at the specified path.
         :param path: Path that the .csv file will be saved

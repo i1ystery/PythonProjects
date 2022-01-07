@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 import pandas as pd
 from DBConnection import DBConnection
+from IDBTable import IDBTable
 
 
 class ProductCategory(Enum):
@@ -33,12 +34,12 @@ class Product:
         return f'ID: {self.product_id}\nName: {self.product_name}\nProduct price: {self.product_price}\nIs edible: {self.is_edible}\nExpiration date: {self.expiration_date}\nType: {self.product_category.name}'
 
 
-class ProductDAO(object):
+class ProductDAO(IDBTable):
     def __init__(self):
         self.conn = DBConnection()
         self.auto_commit = True
 
-    def get_all_products(self) -> list[Product]:
+    def get_all(self) -> list[Product]:
         """
         Selects all Products from the database and returns them
         :return: List with Product Objects
@@ -49,7 +50,7 @@ class ProductDAO(object):
             products.append(Product(raw_product[1], raw_product[2], bool(raw_product[3]), raw_product[5], ProductCategory(raw_product[4]), raw_product[0]))
         return products
 
-    def get_product_by_id(self, product_id) -> Product:
+    def get_by_id(self, product_id) -> Product:
         """
         Selects product by given id
         :return: Product Object
@@ -70,13 +71,13 @@ class ProductDAO(object):
             self.conn.execute_command("UPDATE Products set product_name = ?, product_price = ?, is_edible = ?, category_id = ?, expiration_date = ? where product_id = ?",
                                       data, self.auto_commit)
 
-    def delete_product(self, product: Product):
+    def delete(self, product: Product):
         """
         Deletes given Product from the DB
         """
         self.conn.execute_command("DELETE FROM Products where product_id = ?", product.product_id, self.auto_commit)
 
-    def import_products(self, file_path):
+    def import_data(self, file_path):
         """
         Imports Products from given .csv file
         :param file_path: path to .csv file with Products
@@ -95,7 +96,7 @@ class ProductDAO(object):
             self.auto_commit = True
             raise e
 
-    def export_products(self, path):
+    def export_data(self, path):
         """
         Exports all rows from Products in the database as .csv file at the specified path.
         :param path: Path that the .csv file will be saved

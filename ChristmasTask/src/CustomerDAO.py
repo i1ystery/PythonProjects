@@ -1,6 +1,7 @@
 import csv
 import pandas as pd
 from DBConnection import DBConnection
+from IDBTable import IDBTable
 
 
 class Customer:
@@ -23,12 +24,12 @@ class Customer:
         return f'ID: {self.customer_id}\nName: {self.customer_name}\nLastname: {self.customer_lastname}\nCity: {self.city}\nPhone number: {self.phone_number}\nEmail: {self.email}\nMoney: {self.money}'
 
 
-class CustomerDAO(object):
+class CustomerDAO(IDBTable):
     def __init__(self):
         self.conn = DBConnection()
         self.auto_commit = True
 
-    def get_all_customers(self):
+    def get_all(self):
         """
         Selects all Customers from the database and returns them
         :return: List with Customers Objects
@@ -40,7 +41,7 @@ class CustomerDAO(object):
             customers.append(Customer(*data))
         return customers
 
-    def get_customer_by_id(self, customer_id):
+    def get_by_id(self, customer_id):
         """
         Selects customer by given id
         :return: Customer Object
@@ -63,7 +64,7 @@ class CustomerDAO(object):
             self.conn.execute_command("UPDATE Customers set customer_name = ?,customer_lastname = ?, city = ?, phone_number = ?, email = ?, money = ? where customer_id = ?",
                                       data, self.auto_commit)
 
-    def delete_customer(self, customer: Customer):
+    def delete(self, customer: Customer):
         """
         Deletes given Customer from the DB
         """
@@ -87,7 +88,7 @@ class CustomerDAO(object):
             self.auto_commit = True
             raise
 
-    def import_customers(self, file_path):
+    def import_data(self, file_path):
         """
         Imports Customers from given .csv file
         :param file_path: path to .csv file with Customers
@@ -107,7 +108,7 @@ class CustomerDAO(object):
             self.auto_commit = True
             raise
 
-    def export_customers(self, path):
+    def export_data(self, path):
         """
         Exports all rows from Customers in the database as .csv file at the specified path.
         :param path: Path that the .csv file will be saved

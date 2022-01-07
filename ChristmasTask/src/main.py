@@ -9,11 +9,23 @@ from tkinter.filedialog import askopenfilename, askdirectory
 from OrderDAO import *
 from ProductDAO import *
 from CustomerDAO import *
+from Command import *
+
+
+def back_to_menu():
+    """
+    Returns user back to the main menu
+    """
+    input('\033[1;35;40mPress ENTER to go back to menu\033[0m')
+    menu()
+
+
+back = Command('Back to main menu', back_to_menu)   # Back command
 
 
 def make_choice(action: str, values: list):
     """
-    Makes user choose one object from values argument
+    Makes user choose one value from given values list
     :param action: Action that user should do
     :param values: List of values from which user must select one
     :return: Selected object from list
@@ -21,7 +33,7 @@ def make_choice(action: str, values: list):
     try:
         choices = dict(enumerate(values, 1))
         for key in choices.keys():
-            print(f'\033[1;35;40mOption {key})\033[0m\n{choices[key]}\n')
+            print(f'\033[1;35;40mOption {key}) \033[0m{choices[key]}')
         action = input(f'{action} (option number): ')
         if int(action) in choices.keys():
             return choices[int(action)]
@@ -34,25 +46,55 @@ def make_choice(action: str, values: list):
 
 def cls():
     """
-    Cleans console
+    Clears console
     """
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def back_to_menu(from_method):
+def log_error(exc_type: type, exc_value, exc_tb: traceback):
     """
-    Asks user if user want go back to main menu.
-    :param from_method: Function to call if user don't want to go back to menu.
+    Logs errors into XML file
+    :param exc_type: Exception type from sys.exc_info()
+    :param exc_value: Exception value from sys.exc_info()
+    :param exc_tb: Traceback from sys.exc_info()
     """
-    back = make_choice('Done.\nDo you want go back to menu?', ['Yes', 'No'])
-    menu() if back == 'Yes' else from_method()
+    error_time = datetime.today().__str__()
+    traceback_str = ''
+    for trb in traceback.format_tb(exc_tb):
+        traceback_str += trb
+    log_path = os.path.abspath(os.path.join(os.getcwd(), '../logs/error.log'))
+    if not os.path.exists(log_path):
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        root = ET.Element("Error_log")
+        tree = ET.ElementTree(root)
+    else:
+        tree = ET.parse(log_path)
+    exc = ET.SubElement(tree.getroot(), "Exception")
+    ET.SubElement(exc, 'Type').text = exc_type.__name__
+    ET.SubElement(exc, 'Value').text = exc_value.__str__()
+    ET.SubElement(exc, 'Traceback').text = traceback_str
+    ET.SubElement(exc, 'Time').text = error_time
+    ET.indent(tree, space="\t", level=0)
+    string = ET.tostring(tree.getroot())
+    with open(log_path, 'wb') as f:
+        f.write(string)
+    print(f'\033[1;31;40mUnexpected error.\nError log saved to {log_path}\033[40m')
 
 
-def create_product(product_id=None) -> Product:
+def create_product():
+    product = make_product()
+    print(product)
+    save = make_choice('Do you want to insert this product to database?', ['Insert', 'Cancel'])
+    if save == 'Insert':
+        product_dao = ProductDAO()
+        product_dao.save(product)
+    back_to_menu()
+
+
+def make_product(product_id=None) -> Product:
     """
     Makes user create new product or existing product.
     If product_id argument is given, makes user to change existing product otherwise creates new product
-    :return: Product object
     """
     try:
         cls()
@@ -67,28 +109,37 @@ def create_product(product_id=None) -> Product:
             is_edible = False
             exp_date = None
         product_category = make_choice('Choose category: ', [e.name for e in ProductCategory])
-        product = Product(name, price, is_edible, exp_date, ProductCategory[product_category], product_id)
-        return product
+        return Product(name, price, is_edible, exp_date, ProductCategory[product_category], product_id)
+
     except ValueError:
         print('Incorrect value')
         time.sleep(3)
-        crud_product()
+        choose_create()
     except AssertionError as a:
         print(a)
         time.sleep(3)
-        crud_product()
+        choose_create()
 
 
-def create_order(existing_order=None):
+def create_order():
+    order = make_order()
+    print(order)
+    save = make_choice('Do you want to insert this order to database?', ['Insert', 'Cancel'])
+    if save == 'Insert':
+        order_dao = OrderDAO()
+        order_dao.save(order)
+    back_to_menu()
+
+
+def make_order(existing_order=None) -> Order:
     """
     Makes user create new order or change existing order.
     :param existing_order: Order object. If given, makes user to change existing order otherwise creates new order.
-    :return: Order Object
     """
     try:
         cls()
         customer_dao = CustomerDAO()
-        customers = customer_dao.get_all_customers()
+        customers = customer_dao.get_all()
         customer = make_choice('Choose customer: ', customers)
         if existing_order is not None:
             date = input('Enter order date and time YYYY-MM-DD HH:MM:SS')
@@ -100,11 +151,11 @@ def create_order(existing_order=None):
         zip_code = int(input('Zip code: '))
         tracking = input('Tracking code: ')
         order_id = existing_order.order_id if existing_order is not None else None
-        order_details = existing_order.order_details if existing_order is not None else list
+        order_details = existing_order.order_details if existing_order is not None else None
         order = Order(customer, date, name, city, address, zip_code, tracking, order_id, order_details)
         product_dao = ProductDAO()
-        products = product_dao.get_all_products()
-        if existing_order is None:
+        products = product_dao.get_all()
+        if not existing_order:
             add_products(products, order)
             a = make_choice('Do you want to remove products from this order?: ', ['Yes', 'No'])
             remove_products(order, order.order_details) if a == 'Yes' else None
@@ -117,14 +168,24 @@ def create_order(existing_order=None):
     except AssertionError as a:
         print(a)
         time.sleep(3)
-        crud_order()
-    except ValueError:
+        choose_create()
+    except ValueError as a:
         print('Invalid input value')
         time.sleep(3)
-        crud_order()
+        choose_create()
 
 
-def create_customer(customer_id=None):
+def create_customer():
+    customer = make_customer()
+    print(customer)
+    save = make_choice('Do you want to insert this customer to database?', ['Insert', 'Cancel'])
+    if save == 'Insert':
+        customer_dao = CustomerDAO()
+        customer_dao.save(customer)
+    back_to_menu()
+
+
+def make_customer(customer_id=None) -> Customer:
     """
     Makes user create a new or change existing customer
     :param customer_id: If given, makes user to change existing customer otherwise creates new customer
@@ -142,164 +203,157 @@ def create_customer(customer_id=None):
     except ValueError:
         print('Incorrect value')
         time.sleep(3)
-        crud_product()
+        choose_create()
     except AssertionError as a:
         print(a)
         time.sleep(3)
-        crud_customer()
+        choose_create()
 
 
-def crud_product():
-    """
-    Create Read Update Delete UI for Products.
-    """
-    cls()
+def print_products():
     product_dao = ProductDAO()
-    products = product_dao.get_all_products()
-    choice = make_choice('Choose action', ['Create product', 'Print all products', 'Update product', 'Delete product', 'Export products', 'Import products', 'Back'])
-    if choice == 'Create product':
-        product = create_product()
+    products = product_dao.get_all()
+    for product in products:
         print(product)
-        save = make_choice('Do you want to insert this product to database?', ['Insert', 'Cancel'])
-        if save == 'Insert':
-            product_dao.save(product)
-            back_to_menu(crud_product)
-        else:
-            crud_product()
-    if choice == 'Print all products':
-        for product in products:
-            print(product)
-        back_to_menu(crud_product)
-    if choice == 'Update product':
-        product = make_choice('Choose product: ', products)
-        new_product = create_product(product.product_id)
-        product_dao.save(new_product)
-        back_to_menu(crud_product)
-    if choice == 'Delete product':
-        product = make_choice('Choose product: ', products)
-        confirm = make_choice('Do you really want to delete product from database?\nAll rows that are connected with this product will be deleted.', ['Yes', 'No'])
-        product_dao.delete_product(product) if confirm == 'Yes' else crud_product()
-        back_to_menu(crud_product)
-    if choice == 'Export products':
-        print('Choose folder where do you want to export products')
-        path = askdirectory()
-        product_dao.export_products(path)
-        back_to_menu(crud_product)
-    if choice == 'Import products':
-        print('Choose csv file with customers')
-        path = askopenfilename()
-        product_dao.import_products(path)
-        back_to_menu(crud_product)
-    if choice == 'Back':
-        menu()
+    back_to_menu()
 
 
-def crud_customer():
-    """
-    Create Read Update Delete UI for Customers.
-    """
-    cls()
+def print_customers():
     customer_dao = CustomerDAO()
-    customers = customer_dao.get_all_customers()
-    choice = make_choice('Choose action: ', ['Create customer', 'Print all customers', 'Update customer', 'Delete customer', 'Send money from customer to customer', 'Export customers', 'Import customers', 'Back'])
-    if choice == 'Create customer':
-        customer = create_customer()
+    customers = customer_dao.get_all()
+    for customer in customers:
         print(customer)
-        save = make_choice('Do you want to insert this customer to database?', ['Insert', 'Cancel'])
-        if save == 'Insert':
-            customer_dao.save(customer)
-            back_to_menu(crud_customer)
-        else:
-            crud_order()
-    if choice == 'Print all customers':
-        for customer in customers:
-            print(customer)
-        back_to_menu(crud_customer)
-    if choice == 'Update customer':
-        customer = make_choice('Choose customer: ', customers)
-        new_customer = create_customer(customer.customer_id)
-        customer_dao.save(new_customer)
-        back_to_menu(crud_customer)
-    if choice == 'Delete customer':
-        customer = make_choice('Choose customer: ', customers)
-        confirm = make_choice('Do you really want to delete customer from database?\nAll rows that are connected with this customer will be deleted.', ['Yes', 'No'])
-        customer_dao.delete_customer(customer) if confirm == 'Yes' else crud_customer()
-        back_to_menu(crud_customer)
-    if choice == 'Send money from customer to customer':
-        from_customer = make_choice('Choose from customer: ', customers)
-        to_customer = make_choice('Choose to customer: ', customers)
-        money = input('Enter amount of money(float): ')
-        assert float(money), 'Amount of money should be float number'
-        print(f'Chosen customers: \nFrom customer:{from_customer}\nTo customer{to_customer}\nAmount to transfer: {money}')
-        customer_dao.send_money_to_customer(from_customer, to_customer, float(money))
-        back_to_menu(crud_customer)
-    if choice == 'Export customers':
-        print('Choose folder where do you want to export customers')
-        path = askdirectory()
-        customer_dao.export_customers(path)
-        back_to_menu(crud_customer)
-    if choice == 'Import customers':
-        print('Choose csv file with data')
-        path = askopenfilename()
-        customer_dao.import_customers(path)
-        back_to_menu(crud_customer)
-    if choice == 'Back':
-        menu()
+    back_to_menu()
 
 
-def crud_order():
-    """
-    Create Read Update Delete UI for Orders.
-    """
-    cls()
+def print_orders():
     order_dao = OrderDAO()
-    customer_dao = CustomerDAO()
+    orders = order_dao.get_all()
+    for order in orders:
+        print(order)
+    back_to_menu()
+
+
+def update_product():
     product_dao = ProductDAO()
-    customers = customer_dao.get_all_customers()
-    products = product_dao.get_all_products()
-    orders = order_dao.get_all_orders()
-    if not customers or not products:
-        print("You can't create order when there's no customers or products saved in database.")
-        back_to_menu(crud_order)
-    choice = make_choice('Choose action: ', ['Create order', 'Print all orders', 'Update order', 'Delete order', 'Export orders', 'Import orders', 'Back'])
-    if choice == 'Create order':
-        order = create_order()
-        save = make_choice('Do you want to insert this order to database?', ['Insert', 'Cancel'])
-        if save == 'Insert':
-            order_dao.save(order)
-            back_to_menu(crud_order)
-        else:
-            crud_order()
-    if choice == 'Print all orders':
-        for order in orders:
-            print(order)
-        back_to_menu(crud_order)
-    if choice == 'Update order':
-        order = make_choice('Choose order: ', orders)
-        new_order = create_order(order)
-        order_dao.save(new_order)
-        back_to_menu(crud_order)
-    if choice == 'Delete order':
-        order = make_choice('Choose order: ', orders)
-        confirm = make_choice(
-            'Do you really want to delete order from database?\nAll rows that are connected with this order will be deleted.',
-            ['Yes', 'No'])
-        order_dao.delete_order(order) if confirm == 'Yes' else crud_order()
-        back_to_menu(crud_order)
-    if choice == 'Export orders':
-        print('Choose folder where do you want to export orders')
-        path = askdirectory()
-        order_dao.export_orders(path)
-        back_to_menu(crud_order)
-    if choice == 'Import orders':
-        print('Choose csv file with orders')
-        order_path = askopenfilename()
-        print('Choose csv file with order details')
-        order_details_path = askopenfilename()
-        order_dao.import_orders(order_path, order_details_path)
-        back_to_menu(crud_order)
-    if choice == 'Back':
-        menu()
+    products = product_dao.get_all()
+    product = make_choice('Choose product: ', products)
+    new_product = make_product(product.product_id)
+    product_dao.save(new_product)
+    back_to_menu()
+
+
+def update_customer():
+    customer_dao = CustomerDAO()
+    customers = customer_dao.get_all()
+    customer = make_choice('Choose customer: ', customers)
+    new_customer = make_customer(customer.customer_id)
+    customer_dao.save(new_customer)
+    back_to_menu()
+
+
+def update_order():
+    order_dao = OrderDAO()
+    orders = order_dao.get_all()
+    order = make_choice('Choose order: ', orders)
+    new_order = make_order(order)
+    order_dao.save(new_order)
+    back_to_menu()
+
+
+def delete_product():
+    product_dao = ProductDAO()
+    products = product_dao.get_all()
+    product = make_choice('Choose product: ', products)
+    confirm = make_choice(
+        'Do you really want to delete product from database?\nAll rows that are connected with this product will be deleted.',
+        ['Yes', 'No'])
+    product_dao.delete(product) if confirm == 'Yes' else choose_delete()
+    back_to_menu()
+
+
+def delete_customer():
+    customer_dao = CustomerDAO()
+    customers = customer_dao.get_all()
+    customer = make_choice('Choose customer: ', customers)
+    confirm = make_choice(
+        'Do you really want to delete customer from database?\nAll rows that are connected with this customer will be deleted.',
+        ['Yes', 'No'])
+    customer_dao.delete(customer) if confirm == 'Yes' else choose_delete()
+    back_to_menu()
+
+
+def delete_order():
+    order_dao = OrderDAO()
+    orders = order_dao.get_all()
+    order = make_choice('Choose order: ', orders)
+    confirm = make_choice(
+        'Do you really want to delete order from database?\nAll rows that are connected with this order will be deleted.',
+        ['Yes', 'No'])
+    order_dao.delete(order) if confirm == 'Yes' else choose_delete()
+    back_to_menu()
+
+
+def export_products():
+    product_dao = ProductDAO()
+    print('Choose folder where do you want to export products')
+    path = askdirectory()
+    product_dao.export_data(path)
+    back_to_menu()
+
+
+def export_customers():
+    customer_dao = CustomerDAO()
+    print('Choose folder where do you want to export customers')
+    path = askdirectory()
+    customer_dao.export_data(path)
+    back_to_menu()
+
+
+def export_orders():
+    order_dao = OrderDAO()
+    print('Choose folder where do you want to export orders')
+    path = askdirectory()
+    order_dao.export_data(path)
+    back_to_menu()
+
+
+def import_products():
+    product_dao = ProductDAO()
+    print('Choose csv file with customers')
+    path = askopenfilename()
+    product_dao.import_data(path)
+    back_to_menu()
+
+
+def import_customers():
+    customer_dao = CustomerDAO()
+    print('Choose csv file with data')
+    path = askopenfilename()
+    customer_dao.import_data(path)
+    back_to_menu()
+
+
+def import_orders():
+    order_dao = OrderDAO()
+    print('Choose csv file with orders')
+    order_path = askopenfilename()
+    print('Choose csv file with order details')
+    order_details_path = askopenfilename()
+    order_dao.import_data(order_path, order_details_path)
+    back_to_menu()
+
+
+def transfer_money():
+    customer_dao = CustomerDAO()
+    customers = customer_dao.get_all()
+    from_customer = make_choice('Choose from customer: ', customers)
+    to_customer = make_choice('Choose to customer: ', customers)
+    money = input('Enter amount of money(float): ')
+    assert float(money), 'Amount of money should be float number'
+    print(f'Chosen customers: \nFrom customer:{from_customer}\nTo customer{to_customer}\nAmount to transfer: {money}')
+    customer_dao.send_money_to_customer(from_customer, to_customer, float(money))
+    back_to_menu()
 
 
 def add_products(products: list[Product], order: Order):
@@ -347,34 +401,76 @@ def generate_report():
     menu()
 
 
-def log_error(exc_type: type, exc_value, exc_tb: traceback):
-    """
-    Logs errors into XML file
-    :param exc_type: Exception type from sys.exc_info()
-    :param exc_value: Exception value from sys.exc_info()
-    :param exc_tb: Traceback from sys.exc_info()
-    """
-    error_time = datetime.today().__str__()
-    traceback_str = ''
-    for trb in traceback.format_tb(exc_tb):
-        traceback_str += trb
-    log_path = os.path.abspath(os.path.join(os.getcwd(), '../logs/error.log'))
-    if not os.path.exists(log_path):
-        os.makedirs(os.path.dirname(log_path), exist_ok=True)
-        root = ET.Element("Error_log")
-        tree = ET.ElementTree(root)
-    else:
-        tree = ET.parse(log_path)
-    exc = ET.SubElement(tree.getroot(), "Exception")
-    ET.SubElement(exc, 'Type').text = exc_type.__name__
-    ET.SubElement(exc, 'Value').text = exc_value.__str__()
-    ET.SubElement(exc, 'Traceback').text = traceback_str
-    ET.SubElement(exc, 'Time').text = error_time
-    ET.indent(tree, space="\t", level=0)
-    string = ET.tostring(tree.getroot())
-    with open(log_path, 'wb') as f:
-        f.write(string)
-    print(f'\033[1;31;40mUnexpected error.\nError log saved to {log_path}\033[40m')
+def choose_create():
+    create_p = Command('Create Product Row', create_product)
+    create_c = Command('Create Customer Row', create_customer)
+    create_o = Command('Create Order Row', create_order)
+    commands = [create_p, create_c, create_o, back]
+    choose_command(commands)
+
+
+def choose_print():
+    print_p = Command('Print Products', print_products)
+    print_c = Command('Print Customers', print_customers)
+    print_o = Command('Print Orders', print_orders)
+    commands = [print_p, print_c, print_o, back]
+    choose_command(commands)
+
+
+def choose_update():
+    update_p = Command('Update Product Row', update_product)
+    update_c = Command('Update Customer Row', update_customer)
+    update_o = Command('Update Order Row', update_order)
+    commands = [update_p, update_c, update_o, back]
+    choose_command(commands)
+
+
+def choose_delete():
+    delete_p = Command('Delete Product Row', delete_product)
+    delete_c = Command('Delete Customer Row', delete_customer)
+    delete_o = Command('Delete Order Row', delete_order)
+    commands = [delete_p, delete_c, delete_o, back]
+    choose_command(commands)
+
+
+def choose_import():
+    import_p = Command('Import Product Table Rows', import_products)
+    import_c = Command('Import Customer Table Rows', import_customers)
+    import_o = Command('Import Order Table Rows', import_orders)
+    commands = [import_p, import_c, import_o, back]
+    choose_command(commands)
+
+
+def choose_export():
+    export_p = Command('Export Product Table Rows', export_products)
+    export_c = Command('Export Customer Table Rows', export_customers)
+    export_o = Command('Export Order Table Rows', export_orders)
+    commands = [export_p, export_c, export_o, back]
+    choose_command(commands)
+
+
+def choose_other_func():
+    other_f_1 = Command('Transfer money from customer to another customer', transfer_money)
+    other_f_2 = Command('Generate Aggregate Database Report', generate_report)
+    commands = [other_f_1, other_f_2, back]
+    choose_command(commands)
+
+
+def choose_command(commands: list[Command]):
+    cls()
+    try:
+        choices = dict(enumerate(commands, 1))
+        for key in choices.keys():
+            print(f'\033[1;35;40m[{key}] {choices[key].command_name}\033[0m\n')
+        print(choices.keys())
+        action = input(f'Choose option: ')
+        if int(action) in choices.keys():
+            choices[int(action)].method()
+        else:
+            raise ValueError
+    except ValueError:
+        print('Invalid input')
+        choose_command(commands)
 
 
 def menu():
@@ -385,17 +481,16 @@ def menu():
         cls()
         dao = OrderDAO()
         print('Shop Database Application')
-        choice = make_choice('Menu', ['CRUD Product', 'CRUD Customer', 'CRUD Order', 'Generate database report', 'Exit'])
-        if choice == 'CRUD Product':
-            crud_product()
-        if choice == 'CRUD Customer':
-            crud_customer()
-        if choice == 'CRUD Order':
-            crud_order()
-        if choice == 'Generate database report':
-            generate_report()
-        if choice == 'Exit':
-            sys.exit()
+        create_r = Command('Create Table Row', choose_create)
+        print_r = Command('Print Table Rows', choose_print)
+        update_r = Command('Update Table Row', choose_update)
+        delete_r = Command('Delete Table Row', choose_delete)
+        import_r = Command('Import Table Rows', choose_import)
+        export_r = Command('Export Table Rows', choose_export)
+        other_f = Command('Other Functions', choose_other_func)
+        exit_p = Command('Exit', sys.exit)
+        commands = [create_r, print_r, update_r, delete_r, import_r, export_r, other_f, exit_p]
+        choose_command(commands)
     except Exception as e:
         exc_type, exc_name, ext_tb = exc_info()
         log_error(exc_type, exc_name, ext_tb)
