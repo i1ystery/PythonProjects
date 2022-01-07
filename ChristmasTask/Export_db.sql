@@ -9,6 +9,8 @@ go
 use Shop;
 
 --CREATE USER ON SERVER
+--CHANGE USERNAME_HERE to your username
+--CHANGE PASSWORD_HERE to your password
 create login USERNAME_HERE with password='PASSWORD_HERE'
 create user USERNAME_HERE for login USERNAME_HERE
 go
