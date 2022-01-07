@@ -1,6 +1,6 @@
 {
- "SERVER": "MYSTERY",
+ "SERVER": "SERVERNAME_HERE",
  "DATABASE": "Shop",
- "UID": "maks",
- "PWD": "student"
+ "UID": "USERNAME_HERE",
+ "PWD": "PASSWORD_HERE"
 }
