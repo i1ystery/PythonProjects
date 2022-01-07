@@ -125,9 +125,9 @@ insert into Customers values
 ('Mike', 'Wattson', 'London', 523223223, 'mikewattson@gmail.com', 100),
 ('Tanjiro','Kamado', 'Tokyo', 723232323, 'tanjirokamado@gmail.com', 6969)
 insert into Orders values
-(1, GETDATE(), 'Maksym Kuzma', 'Prague', 'Address 12', 14000, 'CZ13254223'),
-(3, GETDATE(), 'Tanjiro Kamado', 'Kyoto', 'Address 43', 24022, 'JP34352121'),
-(2, GETDATE(), 'Tom Wattson', 'London', 'Address 27', 52712, 'GB73453123')
+(1, CONVERT(DATETIME2(0),SYSDATETIME()), 'Maksym Kuzma', 'Prague', 'Address 12', 14000, 'CZ13254223'),
+(3, CONVERT(DATETIME2(0),SYSDATETIME()), 'Tanjiro Kamado', 'Kyoto', 'Address 43', 24022, 'JP34352121'),
+(2, CONVERT(DATETIME2(0),SYSDATETIME()), 'Tom Wattson', 'London', 'Address 27', 52712, 'GB73453123')
 insert into OrderDetails values
 (2, 1, 3, 3600.0),
 (1, 1, 2, 50.0),
