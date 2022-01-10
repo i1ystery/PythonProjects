@@ -11,9 +11,6 @@ def find_request(log_folders, path, vld_path, request):
         with open(os.path.join(log_path, 'Passwords.txt')) as f:
             txt = f.read()
             if request in txt:
-                print(txt)
-                print(log_path)
-                print(vld_path)
                 shutil.move(log_path, vld_path)
 
 
