@@ -1,0 +1,7 @@
+{
+ "Language": "Czech",
+ "Encoding": "utf-16",
+ "Data path": "./data.dat",
+ "Export path": "./export.csv",
+ "Error path": "./error.log"
+}
