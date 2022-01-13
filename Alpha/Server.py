@@ -53,7 +53,7 @@ def get_client_messages(client):
 
 
 def server_start():
-    # Initializes server and constantly waiting for new connections
+    # Initializes server and constantly waiting for the new connections
     while True:
         client, address = server.accept()
         print("New client connected. \nIP: " + str(address))

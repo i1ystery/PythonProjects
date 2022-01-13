@@ -6,6 +6,9 @@ import traceback
 import xml.etree.cElementTree as ET
 from sys import exc_info
 from tkinter.filedialog import askopenfilename, askdirectory
+
+from pyodbc import ProgrammingError
+
 from OrderDAO import *
 from ProductDAO import *
 from CustomerDAO import *
@@ -39,7 +42,8 @@ def make_choice(action: str, values: list):
             return choices[int(action)]
         else:
             raise ValueError
-    except ValueError:
+    except ValueError as e:
+        print(e)
         print('Invalid input')
         make_choice(action, values)
 
@@ -100,7 +104,6 @@ def make_product(product_id=None) -> Product:
         cls()
         name = input('Product name: ')
         price = input('Product price (float): ')
-        price = float(price)
         a = make_choice('Is your product edible?', ['Yes', 'No'])
         if a == 'Yes':
             is_edible = True
@@ -110,11 +113,6 @@ def make_product(product_id=None) -> Product:
             exp_date = None
         product_category = make_choice('Choose category: ', [e.name for e in ProductCategory])
         return Product(name, price, is_edible, exp_date, ProductCategory[product_category], product_id)
-
-    except ValueError:
-        print('Incorrect value')
-        time.sleep(3)
-        choose_create()
     except AssertionError as a:
         print(a)
         time.sleep(3)
@@ -148,7 +146,7 @@ def make_order(existing_order=None) -> Order:
         name = input('Order recipient full name: ')
         city = input('City: ')
         address = input('Address: ')
-        zip_code = int(input('Zip code: '))
+        zip_code = input('Zip code: ')
         tracking = input('Tracking code: ')
         order_id = existing_order.order_id if existing_order is not None else None
         order_details = existing_order.order_details if existing_order is not None else None
@@ -166,11 +164,7 @@ def make_order(existing_order=None) -> Order:
             remove_products(order, order.order_details) if a == 'Yes' else None
         return order
     except AssertionError as a:
-        print(a)
-        time.sleep(3)
-        choose_create()
-    except ValueError as a:
-        print('Invalid input value')
+        print(a.__context__)
         time.sleep(3)
         choose_create()
 
@@ -196,16 +190,12 @@ def make_customer(customer_id=None) -> Customer:
         name = input('Name: ')
         lastname = input('Lastname: ')
         city = input('City: ')
-        phone = int(input('Phone number: '))
+        phone = input('Phone number: ')
         email = input('Email: ')
-        money = float(input('Money: '))
+        money = input('Money: ')
         return Customer(name, lastname, city, phone, email, money, customer_id)
-    except ValueError:
-        print('Incorrect value')
-        time.sleep(3)
-        choose_create()
     except AssertionError as a:
-        print(a)
+        print(a.__context__)
         time.sleep(3)
         choose_create()
 
@@ -319,29 +309,43 @@ def export_orders():
 
 
 def import_products():
-    product_dao = ProductDAO()
-    print('Choose csv file with customers')
-    path = askopenfilename()
-    product_dao.import_data(path)
-    back_to_menu()
+    try:
+        product_dao = ProductDAO()
+        print('Choose csv file with products')
+        path = askopenfilename(title='Choose products.csv', initialdir=os.getcwd(), filetypes=[("csv files", "*.csv")])
+        product_dao.import_data(path)
+        back_to_menu()
+    except ProgrammingError:
+        print('Invalid csv file')
+        choose_import()
 
 
 def import_customers():
-    customer_dao = CustomerDAO()
-    print('Choose csv file with data')
-    path = askopenfilename()
-    customer_dao.import_data(path)
-    back_to_menu()
+    try:
+        customer_dao = CustomerDAO()
+        print('Choose csv file with customers')
+        path = askopenfilename(title='Choose customers.csv', initialdir=os.getcwd(), filetypes=[("csv files", "*.csv")])
+        customer_dao.import_data(path)
+        back_to_menu()
+    except ProgrammingError:
+        print('Invalid csv file')
+        choose_import()
 
 
 def import_orders():
     order_dao = OrderDAO()
-    print('Choose csv file with orders')
-    order_path = askopenfilename()
-    print('Choose csv file with order details')
-    order_details_path = askopenfilename()
-    order_dao.import_data(order_path, order_details_path)
-    back_to_menu()
+    try:
+        print('Choose csv file with orders')
+        order_path = askopenfilename(title='Choose orders.csv', initialdir=os.getcwd(),
+                                     filetypes=[("csv files", "*.csv")])
+        print('Choose csv file with order details')
+        order_details_path = askopenfilename(title='Choose order_details.csv', initialdir=os.getcwd(),
+                                             filetypes=[("csv files", "*.csv")])
+        order_dao.import_data(order_path, order_details_path)
+        back_to_menu()
+    except ProgrammingError:
+        print('Invalid csv file')
+        choose_import()
 
 
 def transfer_money():
@@ -384,7 +388,7 @@ def remove_products(order: Order, order_details: list[OrderDetails]):
     """
     product = make_choice('Choose product to delete from an order: ', order_details)
     order.remove_product(product)
-    order_details.remove(product)
+    #order_details.remove(product)
     more = make_choice('Do you want to remove another product?', ['Yes', 'No'])
     remove_products(order, order_details) if more == 'Yes' and order_details else None
 
@@ -462,13 +466,13 @@ def choose_command(commands: list[Command]):
         choices = dict(enumerate(commands, 1))
         for key in choices.keys():
             print(f'\033[1;35;40m[{key}] {choices[key].command_name}\033[0m\n')
-        print(choices.keys())
         action = input(f'Choose option: ')
         if int(action) in choices.keys():
             choices[int(action)].method()
         else:
             raise ValueError
-    except ValueError:
+    except ValueError as e:
+        print(e)
         print('Invalid input')
         choose_command(commands)
 

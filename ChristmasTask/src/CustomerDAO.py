@@ -5,13 +5,17 @@ from IDBTable import IDBTable
 
 
 class Customer:
-    def __init__(self, customer_name, customer_lastname, city, phone_number, email, money, customer_id=None):
+    def __init__(self, customer_name: str, customer_lastname: str, city: str, phone_number: str, email: str, money: str, customer_id=None):
         assert isinstance(customer_name, str) and len(customer_name) <= 25, 'Incorrect customer name'
         assert isinstance(customer_name, str) and len(customer_name) <= 25, 'Incorrect customer lastname'
         assert isinstance(city, str) and len(city) <= 25, 'Incorrect city'
-        assert isinstance(phone_number, int), 'Incorrect phone number'
+        assert phone_number.isnumeric() and 2 < len(phone_number) < 16, 'Incorrect phone number'
         assert isinstance(email, str) and len(email) <= 25, 'Incorrect email'
-        assert isinstance(money, float) and money >= 0.0, 'Incorrect amount of money'
+        try:
+            self.money = float(money)
+            assert 0 <= self.money < 1.7976931348623157e+308, 'Incorrect product price'
+        except ValueError:
+            raise AssertionError('Incorrect product price')
         self.customer_id = customer_id
         self.customer_name = customer_name
         self.customer_lastname = customer_lastname

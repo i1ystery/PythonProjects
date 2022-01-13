@@ -16,13 +16,17 @@ class ProductCategory(Enum):
 
 
 class Product:
-    def __init__(self, product_name: str, product_price: float, is_edible: bool, expiration_date: str, product_category: ProductCategory, product_id=None):
+    def __init__(self, product_name: str, product_price: str, is_edible: bool, expiration_date: str, product_category: ProductCategory, product_id=None):
         assert isinstance(product_name, str) and len(product_name) <= 50, 'Incorrect product name'
         if expiration_date:
             assert datetime.strptime(expiration_date, '%Y-%m-%d'), 'Incorrect expiration date'
         assert isinstance(product_category, ProductCategory)
         assert isinstance(is_edible, bool)
-        assert float(product_price) and product_price > 0.0, 'Incorrect product price'
+        try:
+            product_price = float(product_price)
+            assert 0 < product_price < 1.7976931348623157e+308, 'Incorrect product price'
+        except ValueError:
+            raise AssertionError('Incorrect product price')
         self.product_id = product_id
         self.product_name = product_name
         self.product_price = product_price

@@ -1,3 +1,5 @@
+import sys
+
 from CustomerDAO import *
 from ProductDAO import *
 from IDBTable import IDBTable
@@ -6,13 +8,15 @@ import csv
 
 
 class OrderDetails:
-    def __init__(self, product: Product, quantity: int, details_id=None, order_id=None, final_price=None):
+    def __init__(self, product: Product, quantity, details_id=None, order_id=None, final_price=None):
         self.details_id = details_id
         self.product = product
         self.order_id = order_id
-        self.quantity = quantity
+        if isinstance(quantity, str):
+            assert quantity.isnumeric() and 0 < int(quantity) < sys.maxsize, 'Incorrect quantity'
+        self.quantity = int(quantity)
         if final_price is None:
-            self.final_price = product.product_price * quantity
+            self.final_price = product.product_price * self.quantity
         else:
             self.final_price = final_price
 
@@ -28,13 +32,14 @@ class OrderDetails:
 
 
 class Order:
-    def __init__(self, customer: Customer, order_date: str, ship_name: str, ship_city: str, ship_address: str, ship_zip: int, tracking: str, order_id=None, order_det=None):
+    def __init__(self, customer: Customer, order_date: str, ship_name: str, ship_city: str, ship_address: str, ship_zip: str, tracking: str, order_id=None, order_det=None):
         assert isinstance(customer, Customer), 'Incorrect customer'
         assert datetime.strptime(str(order_date), '%Y-%m-%d %H:%M:%S'), 'Incorrect order date'
         assert isinstance(ship_name, str) and len(ship_name) <= 50, 'Incorrect shipment name'
         assert isinstance(ship_city, str) and len(ship_city) <= 25, 'Incorrect shipment city'
         assert isinstance(ship_address, str) and len(ship_address) <= 100, 'Incorrect shipment address'
-        assert isinstance(ship_zip, int), 'Incorrect shipment zip'
+        if isinstance(ship_zip, str):
+            assert ship_zip.isnumeric() and 0 < len(ship_zip) < 11, 'Incorrect shipment zip'
         assert isinstance(tracking, str) and len(tracking) <= 50, 'Incorrect tracking code'
         self.order_id = order_id
         self.customer = customer
@@ -48,13 +53,14 @@ class Order:
         if order_det:
             self.order_details = order_det
 
-    def add_product(self, product: Product, quantity: int):
+    def add_product(self, product: Product, quantity):
         """
         Creates OrderDetails object with given product and it's quantity.
         Afterwards adds it to the order
         """
         assert isinstance(product, Product), 'Incorrect product'
-        assert isinstance(quantity, int) and quantity > 0, 'Incorrect quantity'
+        if isinstance(quantity, str):
+            assert quantity.isnumeric() and 0 < int(quantity) < sys.maxsize, 'Incorrect quantity'
         ord_det = OrderDetails(product, quantity)
         self.order_details.append(ord_det)
 

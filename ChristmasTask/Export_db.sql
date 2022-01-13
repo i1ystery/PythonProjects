@@ -1,26 +1,9 @@
---Project name: Shop Database System
---Author: Maksym Kuzma
---Class: C4a
---Email: kuzmamax78@gmail.com
---Phone number: 771188642
-
-create database Shop;
-go
-use Shop;
-
---CREATE USER ON SERVER
---CHANGE USERNAME_HERE to your username
---CHANGE PASSWORD_HERE to your password
-create login USERNAME_HERE with password='PASSWORD_HERE'
-create user USERNAME_HERE for login USERNAME_HERE
-go
-exec sp_addrolemember'db_owner','USERNAME_HERE'
-go
-
+use kuzma;
+begin transaction
 --CREATE TABLES
 create table Categories(
 category_id int primary key identity(1,1),
-category_name nvarchar(25)
+category_name nvarchar(25) not null
 )
 
 create table Products(
@@ -31,13 +14,12 @@ is_edible bit not null,
 category_id int foreign key references Categories(category_id) on delete cascade not null,
 expiration_date date
 )
-
 create table Customers(
 customer_id int primary key identity(1,1),
 customer_name nvarchar(25) not null,
 customer_lastname nvarchar(25) not null,
 city nvarchar(25) not null,
-phone_number int not null,
+phone_number nvarchar(16) not null,
 email nvarchar(25) not null,
 money float not null
 )
@@ -60,59 +42,6 @@ order_id int foreign key references Orders(order_id) not null,
 quantity int not null,
 final_price float not null
 )
-
---AGGREGATE REPORT PROCEDURE
-go
-create procedure AggregateReport
-as
-begin
-select o.ship_city as 'Shipping city', product_name as 'Product name', sum(od.quantity) as 'Total bought'  from Products p 
-inner join OrderDetails od on p.product_id = od.product_id 
-inner join Orders o on od.order_id = o.order_id
-group by product_name, ship_city
-end
-go
-
---VIEWS
-create view ProductsExport as
-SELECT 
-		[product_name]
-		,[product_price]
-		,[is_edible]
-		,[category_id]
-		,[expiration_date] 
-	FROM Products
-go
-create view CustomersExport as
-SELECT
-		[customer_name]
-		,[customer_lastname]
-		,[city]
-		,[phone_number]
-		,[email]
-		,[money]
-  FROM [Shop].[dbo].[Customers]
-go
-create view OrdersExport as
-SELECT
-      [order_customer]
-      ,[order_datetime]
-      ,[ship_name]
-      ,[ship_city]
-      ,[ship_address]
-      ,[ship_zip]
-      ,[order_tracking]
-  FROM [Shop].[dbo].[Orders]
-go
-create view OrderDetailsExport as
-SELECT
-		[product_id]
-		,[order_id]
-		,[quantity]
-		,[final_price]
-  FROM [Shop].[dbo].[OrderDetails]
-go
-
 --INSERTS
 insert into Categories values
 ('CONVENIENCE'),
@@ -135,3 +64,56 @@ insert into OrderDetails values
 (1, 1, 2, 50.0),
 (3, 2, 1, 13000000.0),
 (1, 3, 10, 250.0)
+commit transaction
+go
+--AGGREGATE REPORT PROCEDURE
+create procedure AggregateReport
+as
+begin
+select o.ship_city as 'Shipping city', product_name as 'Product name', sum(od.quantity) as 'Total bought'  from Products p 
+inner join OrderDetails od on p.product_id = od.product_id 
+inner join Orders o on od.order_id = o.order_id
+group by product_name, ship_city
+end
+
+go
+--VIEWS
+create view ProductsExport as
+SELECT 
+		[product_name]
+		,[product_price]
+		,[is_edible]
+		,[category_id]
+		,[expiration_date] 
+	FROM Products
+go
+create view CustomersExport as
+SELECT
+		[customer_name]
+		,[customer_lastname]
+		,[city]
+		,[phone_number]
+		,[email]
+		,[money]
+  FROM Customers
+go
+create view OrdersExport as
+SELECT
+      [order_customer]
+      ,[order_datetime]
+      ,[ship_name]
+      ,[ship_city]
+      ,[ship_address]
+      ,[ship_zip]
+      ,[order_tracking]
+  FROM Orders
+go
+create view OrderDetailsExport as
+SELECT
+		[product_id]
+		,[order_id]
+		,[quantity]
+		,[final_price]
+  FROM OrderDetails
+go
+
