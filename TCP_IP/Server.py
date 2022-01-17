@@ -78,7 +78,7 @@ def ohm(client):
 
 
 def stop(client):
-    broadcast('Stopping server...'.encode('utf-8'), None)
+    broadcast('Stopping server...', None)
     global online
     online = False
     server.close()
@@ -99,19 +99,13 @@ def history(client):
     client.send(history.encode('utf-8'))
 
 
-def message(client):
-    message = receive_message(client)
-    broadcast(message, client)
-
-
 commands = {
     'QUOTE': quote,
     'DATE': date,
     'HELP': help_command,
     'OHM': ohm,
     'STOP': stop,
-    'MESSAGE': message,
-    'HISTORY': history,
+    'HISTORY': history
 }
 
 
@@ -153,6 +147,7 @@ def run():
             list_of_clients.append(conn)
             print(addr[0] + " connected")
             t = threading.Thread(target=client_thread, args=(conn, addr))
+            t.daemon = True
             t.start()
     except OSError:
         print('Server stopped')
