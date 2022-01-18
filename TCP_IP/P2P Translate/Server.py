@@ -7,9 +7,9 @@ from Client import Client
 
 
 config = {
-    'IP': '192.168.43.21',
+    'IP': '192.168.0.45',
     'Port': 65525,
-    'IP_RANGE': '10.2.5.0/24',
+    'IP_RANGE': '192.168.0.0/24',
     'PORT_RANGE': '65525-65535'
 }
 words = {
@@ -19,7 +19,7 @@ words = {
     'food': 'jídlo',
     'shadow': 'stín'
 }
-available_servers = [('192.168.43.21', 65525)]
+available_servers = [('192.168.0.87', 65525)]
 
 
 def translate_loc(conn, word: str):
@@ -30,12 +30,17 @@ def translate_loc(conn, word: str):
 
 
 def translate_rem(conn, word: str):
+    # find_available_servers()
     with ThreadPoolExecutor(max_workers=len(available_servers)) as executor:
         executor.map(find_translation, available_servers, repeat(word), repeat(conn))
 
 
-def translate_any(word: str) -> str:
-    pass
+def translate_any(conn, word: str):
+    if word.lower() in words.keys():
+        conn.send(f'TRANSLATESUC"{words[word.lower()]}"'.encode())
+    else:
+        conn.send('TRANSLATEERR"Unknown word"'.encode())
+        translate_rem(conn, word)
 
 
 commands = {
@@ -55,19 +60,7 @@ def find_translation(server, word: str, conn):
     conn.send(answer)
 
 
-def get_all_possible_addresses():
-    ips = [str(ip) for ip in ipaddress.IPv4Network(config['IP_RANGE'])][1:-1]
-    port_min, port_max = config['PORT_RANGE'].split('-')
-    ports = range(int(port_min), int(port_max) + 1)
-    ip_port = []
-    for port in ports:
-        for ip in ips:
-            ip_port.append((ip, port))
-    return ip_port
-
-
 def find_available_servers():
-    # all_servers = get_all_possible_addresses()
     all_servers = [str(ip) for ip in ipaddress.IPv4Network(config['IP_RANGE'])][1:-1]
     with ThreadPoolExecutor(max_workers=len(all_servers)) as executor:
         executor.map(check_ip, all_servers)
@@ -75,6 +68,8 @@ def find_available_servers():
 
 def check_ip(server):
     try:
+        if server == config['IP']:
+            raise
         port_min, port_max = config['PORT_RANGE'].split('-')
         ports = range(int(port_min), int(port_max) + 1)
         for port in ports:
@@ -88,7 +83,6 @@ def check_ip(server):
             if 'TRANSLATE' in msg:
                 available_servers.append(server)
             print(f'Found {server} + {port}')
-
     except:
         pass
 
@@ -97,15 +91,12 @@ def client_thread(conn, addr):
     conn.send(f"Welcome to this chatroom! Your ip address is: {addr}".encode())
     while True:
         try:
-            if True:
-                message = conn.recv(1024).decode()
-                command, word = message.split('"')[:-1]
-                if command.upper() in commands.keys():
-                    commands[command.upper()](conn, word)
-                else:
-                    conn.send('Invalid command'.encode())
+            message = conn.recv(1024).decode()
+            command, word = message.split('"')[:-1]
+            if command.upper() in commands.keys():
+                commands[command.upper()](conn, word)
             else:
-                break
+                conn.send('Invalid command'.encode())
         except Exception as e:
             print(e)
             break

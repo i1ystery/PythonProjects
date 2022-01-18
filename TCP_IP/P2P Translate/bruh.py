@@ -2,7 +2,7 @@ import socket
 
 if __name__ == '__main__':
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client.connect(('192.168.43.21', 65525))
+    client.connect(('192.168.0.45', 65525))
     while True:
         try:
             received_message = client.recv(1024).decode('utf-8')
