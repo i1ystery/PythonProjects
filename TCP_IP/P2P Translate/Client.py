@@ -9,6 +9,6 @@ class Client:
     def execute_command(self, command):
         self.cl.connect(self.server)
         self.cl.send(command.encode())
-        answer = self.cl.recv(1024).decode()
+        answer = self.cl.recv(1024)
         return answer
 

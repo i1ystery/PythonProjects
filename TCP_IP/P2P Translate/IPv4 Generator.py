@@ -1,6 +1,6 @@
 import ipaddress
-a = [str(ip) for ip in ipaddress.IPv4Network('192.168.1.0/24')]
-print(len(a))
+a = [str(ip) for ip in ipaddress.IPv4Network('10.2.5.0/24')]
+print(a)
 
 #
 # config = {
@@ -24,17 +24,17 @@ print(len(a))
 # print(get_all_possible_addresses())
 
 
-# importing socket module
-import socket
-
-# creates a new socket using the given address family.
-socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# setting up the default timeout in seconds for new socket object
-socket.setdefaulttimeout(1)
-
-# returns 0 if connection succeeds else raises error
-result = socket_obj.connect_ex((addr, port))  # address and port in the tuple format
-
-# closes te object
-socket_obj.close()
+# # importing socket module
+# import socket
+#
+# # creates a new socket using the given address family.
+# socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#
+# # setting up the default timeout in seconds for new socket object
+# socket.setdefaulttimeout(1)
+#
+# # returns 0 if connection succeeds else raises error
+# result = socket_obj.connect_ex((addr, port))  # address and port in the tuple format
+#
+# # closes te object
+# socket_obj.close()

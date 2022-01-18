@@ -1,13 +1,15 @@
 import socket
 import threading
 import ipaddress
+from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
 from Client import Client
 
-online = True
+
 config = {
-    'IP': '127.0.0.1',
-    'Port': 8888,
-    'IP_RANGE': '127.0.0.1/24',
+    'IP': '10.2.5.186',
+    'Port': 65525,
+    'IP_RANGE': '10.2.5.0/24',
     'PORT_RANGE': '65525-65535'
 }
 words = {
@@ -20,15 +22,17 @@ words = {
 available_servers = []
 
 
-def translate_loc(word: str) -> str:
+def translate_loc(conn, word: str):
     if word.lower() in words.keys():
-        return f'TRANSLATESUC"{words[word.lower()]}"'
+        conn.send(f'TRANSLATESUC"{words[word.lower()]}"'.encode())
     else:
-        return 'TRANSLATEERR"Unknown word"'
+        conn.send('TRANSLATEERR"Unknown word"'.encode())
 
 
-def translate_rem(word: str) -> str:
-
+def translate_rem(conn, word: str):
+    command = 'TRANSLATEREM'
+    with ThreadPoolExecutor(max_workers=len(available_servers)) as executor:
+        executor.map(find_translation, available_servers, repeat(word), repeat(command), repeat(conn))
 
 
 def translate_any(word: str) -> str:
@@ -42,8 +46,12 @@ commands = {
 }
 
 
-def new_client():
-
+def find_translation(server, word: str, command: str, conn):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(server)
+    client.send(f'{command}"{word}"'.encode())
+    answer = client.recv(1024)
+    conn.send(answer)
 
 
 def get_all_possible_addresses():
@@ -58,29 +66,50 @@ def get_all_possible_addresses():
 
 
 def find_available_servers():
-    all_servers = get_all_possible_addresses()
-    for server in all_servers:
-        try:
+    # all_servers = get_all_possible_addresses()
+    all_servers = [str(ip) for ip in ipaddress.IPv4Network(config['IP_RANGE'])][1:-1]
+    with ThreadPoolExecutor(max_workers=len(all_servers)) as executor:
+        executor.map(check_ip, all_servers)
+    # for server in all_servers:
+    #     try:
+    #         socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #         socket.setdefaulttimeout(3)
+    #         result = socket_obj.connect_ex(server)
+    #         print(f'Found {server[0]} + {server[1]}')
+    #         # socket_obj.send('TRANSLATELOC"asdasdasd"'.encode())
+    #         # if 'TRANSLATE' in socket_obj.recv(1024).decode():
+    #         #     available_servers.append(server)
+    #         socket_obj.close()
+    #     except:
+    #         continue
+
+
+def check_ip(server):
+    try:
+        port_min, port_max = config['PORT_RANGE'].split('-')
+        ports = range(int(port_min), int(port_max) + 1)
+        for port in ports:
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket.setdefaulttimeout(3)
-            result = socket_obj.connect_ex(server)
-            socket_obj.close()
+            result = socket_obj.connect_ex((server, port))
+            socket_obj.send('TRANSLATELOC"asdasdasd"'.encode())
+            #if 'TRANSLATE' in socket_obj.recv(1024).decode():
             available_servers.append(server)
-        except:
-            pass
+            print(f'Found {server} + {port}')
+            socket_obj.close()
+    except:
+        pass
 
 
 def client_thread(conn, addr):
     conn.send(f"Welcome to this chatroom! Your ip address is: {addr}".encode())
     while True:
         try:
-            global online
-            if online:
+            if True:
                 message = conn.recv(1024).decode()
                 command, word = message.split('"')[:-1]
                 if command.upper() in commands.keys():
-                    translated = commands[command.upper()](conn, word)
-                    conn.send(translated.encode())
+                    commands[command.upper()](conn, word)
                 else:
                     conn.send('Invalid command'.encode())
             else:
@@ -95,7 +124,9 @@ def run():
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((config['IP'], config['Port']))
         server.listen()
-        while online:
+        print('Server Started')
+        find_available_servers()
+        while True:
             conn, addr = server.accept()
             print(addr[0] + " connected")
             t = threading.Thread(target=client_thread, args=(conn, addr))
