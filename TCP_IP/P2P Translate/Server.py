@@ -7,7 +7,7 @@ from Client import Client
 
 
 config = {
-    'IP': '10.2.5.186',
+    'IP': '192.168.43.21',
     'Port': 65525,
     'IP_RANGE': '10.2.5.0/24',
     'PORT_RANGE': '65525-65535'
@@ -19,7 +19,7 @@ words = {
     'food': 'jídlo',
     'shadow': 'stín'
 }
-available_servers = []
+available_servers = [('192.168.43.21', 65525)]
 
 
 def translate_loc(conn, word: str):
@@ -30,9 +30,8 @@ def translate_loc(conn, word: str):
 
 
 def translate_rem(conn, word: str):
-    command = 'TRANSLATEREM'
     with ThreadPoolExecutor(max_workers=len(available_servers)) as executor:
-        executor.map(find_translation, available_servers, repeat(word), repeat(command), repeat(conn))
+        executor.map(find_translation, available_servers, repeat(word), repeat(conn))
 
 
 def translate_any(word: str) -> str:
@@ -46,11 +45,13 @@ commands = {
 }
 
 
-def find_translation(server, word: str, command: str, conn):
+def find_translation(server, word: str, conn):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(server)
-    client.send(f'{command}"{word}"'.encode())
+    client.recv(1024)
+    client.send(f'TRANSLATELOC"{word}"'.encode())
     answer = client.recv(1024)
+    print(answer)
     conn.send(answer)
 
 
@@ -70,18 +71,6 @@ def find_available_servers():
     all_servers = [str(ip) for ip in ipaddress.IPv4Network(config['IP_RANGE'])][1:-1]
     with ThreadPoolExecutor(max_workers=len(all_servers)) as executor:
         executor.map(check_ip, all_servers)
-    # for server in all_servers:
-    #     try:
-    #         socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #         socket.setdefaulttimeout(3)
-    #         result = socket_obj.connect_ex(server)
-    #         print(f'Found {server[0]} + {server[1]}')
-    #         # socket_obj.send('TRANSLATELOC"asdasdasd"'.encode())
-    #         # if 'TRANSLATE' in socket_obj.recv(1024).decode():
-    #         #     available_servers.append(server)
-    #         socket_obj.close()
-    #     except:
-    #         continue
 
 
 def check_ip(server):
@@ -93,10 +82,13 @@ def check_ip(server):
             socket.setdefaulttimeout(3)
             result = socket_obj.connect_ex((server, port))
             socket_obj.send('TRANSLATELOC"asdasdasd"'.encode())
-            #if 'TRANSLATE' in socket_obj.recv(1024).decode():
-            available_servers.append(server)
-            print(f'Found {server} + {port}')
+            msg = socket_obj.recv(1024).decode()
             socket_obj.close()
+            print(msg)
+            if 'TRANSLATE' in msg:
+                available_servers.append(server)
+            print(f'Found {server} + {port}')
+
     except:
         pass
 
@@ -125,7 +117,7 @@ def run():
         server.bind((config['IP'], config['Port']))
         server.listen()
         print('Server Started')
-        find_available_servers()
+        # find_available_servers()
         while True:
             conn, addr = server.accept()
             print(addr[0] + " connected")

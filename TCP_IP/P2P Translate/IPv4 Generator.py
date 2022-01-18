@@ -1,5 +1,6 @@
 import ipaddress
-a = [str(ip) for ip in ipaddress.IPv4Network('10.2.5.0/24')]
+net = ipaddress.ip_network('10.2.5.184/29', strict=False)
+a = [str(ip) for ip in ipaddress.IPv4Network(net)]
 print(a)
 
 #
