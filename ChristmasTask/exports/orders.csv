@@ -1,0 +1,4 @@
+order_customer,order_datetime,ship_name,ship_city,ship_address,ship_zip,order_tracking
+1,2022-01-07 16:05:52,Maksym Kuzma,Prague,Address 12,14000,CZ13254223
+3,2022-01-07 16:05:52,Tanjiro Kamado,Kyoto,Address 43,24022,JP34352121
+2,2022-01-07 16:05:52,Tom Wattson,London,Address 27,52712,GB73453123

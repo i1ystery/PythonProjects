@@ -1,17 +1,11 @@
+import json
 import socket
 import threading
 import ipaddress
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
-from Client import Client
 
 
-config = {
-    'IP': '192.168.0.45',
-    'Port': 65525,
-    'IP_RANGE': '192.168.0.0/24',
-    'PORT_RANGE': '65525-65535'
-}
 words = {
     'future': 'budoucnost',
     'memory': 'paměť',
@@ -30,9 +24,10 @@ def translate_loc(conn, word: str):
 
 
 def translate_rem(conn, word: str):
-    # find_available_servers()
-    with ThreadPoolExecutor(max_workers=len(available_servers)) as executor:
-        executor.map(find_translation, available_servers, repeat(word), repeat(conn))
+    find_available_servers()
+    if available_servers:
+        with ThreadPoolExecutor(max_workers=len(available_servers)) as executor:
+            executor.map(find_translation, available_servers, repeat(word), repeat(conn))
 
 
 def translate_any(conn, word: str):
@@ -75,14 +70,13 @@ def check_ip(server):
         for port in ports:
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket.setdefaulttimeout(3)
-            result = socket_obj.connect_ex((server, port))
+            socket_obj.connect_ex((server, port))
             socket_obj.send('TRANSLATELOC"asdasdasd"'.encode())
             msg = socket_obj.recv(1024).decode()
             socket_obj.close()
-            print(msg)
             if 'TRANSLATE' in msg:
+                print(f'Found {server} + {port}')
                 available_servers.append(server)
-            print(f'Found {server} + {port}')
     except:
         pass
 
@@ -92,18 +86,27 @@ def client_thread(conn, addr):
     while True:
         try:
             message = conn.recv(1024).decode()
+            if message == '\r\n' or message == '\r':
+                message = conn.recv(1024).decode()
             command, word = message.split('"')[:-1]
             if command.upper() in commands.keys():
                 commands[command.upper()](conn, word)
             else:
-                conn.send('Invalid command'.encode())
-        except Exception as e:
-            print(e)
+                raise ValueError
+        except ValueError:
+            conn.send('TRASNLATEERR"Invalid Command"'.encode())
+        except:
             break
+
+
+def load_config():
+    with open("config.json", 'r') as f:
+        return json.load(f)
 
 
 def run():
     try:
+        config = load_config()
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((config['IP'], config['Port']))
         server.listen()
