@@ -5,10 +5,10 @@ if __name__ == '__main__':
     client.connect(('10.2.3.235', 65525))
     while True:
         try:
-            received_message = client.recv(1024).decode('utf-8')
-            print(received_message)
             sent_text = input("")
             client.send(sent_text.encode('utf-8'))
+            received_message = client.recv(1024).decode('utf-8')
+            print(received_message)
         except:
             print('Lost connection to the server')
             client.close()
