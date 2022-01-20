@@ -76,7 +76,7 @@ def check_ip(server):
         for port in ports:
             print(f'Checking {server}, {port}')
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            socket.setdefaulttimeout(3)
+            socket.setdefaulttimeout(0.01)
             socket_obj.connect_ex((server, port))
             socket_obj.recv(1024)
             socket_obj.send('TRANSLATELOC"asdasdasd"'.encode())
@@ -91,7 +91,6 @@ def check_ip(server):
 
 
 def client_thread(conn, addr):
-    conn.send(f"Welcome to this chatroom! Your ip address is: {addr}".encode())
     while True:
         try:
             message = conn.recv(1024).decode()
