@@ -6,6 +6,11 @@ from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
 
+def load_config():
+    with open("config.json", 'r') as f:
+        return json.load(f)
+
+
 words = {
     'future': 'budoucnost',
     'memory': 'paměť',
@@ -13,7 +18,8 @@ words = {
     'food': 'jídlo',
     'shadow': 'stín'
 }
-available_servers = [('192.168.0.87', 65525)]
+available_servers = []
+config = load_config()
 
 
 def translate_loc(conn, word: str):
@@ -41,7 +47,7 @@ def translate_any(conn, word: str):
 commands = {
     'TRANSLATELOC': translate_loc,
     'TRANSLATEREM': translate_rem,
-    'TRANSLATEANY': translate_any
+    'TRANSLATEANY': translate_any,
 }
 
 
@@ -68,15 +74,18 @@ def check_ip(server):
         port_min, port_max = config['PORT_RANGE'].split('-')
         ports = range(int(port_min), int(port_max) + 1)
         for port in ports:
+            print(f'Checking {server}, {port}')
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket.setdefaulttimeout(3)
             socket_obj.connect_ex((server, port))
+            socket_obj.recv(1024)
             socket_obj.send('TRANSLATELOC"asdasdasd"'.encode())
             msg = socket_obj.recv(1024).decode()
+            print(msg)
             socket_obj.close()
             if 'TRANSLATE' in msg:
                 print(f'Found {server} + {port}')
-                available_servers.append(server)
+                available_servers.append((server, port))
     except:
         pass
 
@@ -95,23 +104,18 @@ def client_thread(conn, addr):
                 raise ValueError
         except ValueError:
             conn.send('TRASNLATEERR"Invalid Command"'.encode())
+            conn.close()
         except:
-            break
-
-
-def load_config():
-    with open("config.json", 'r') as f:
-        return json.load(f)
+            conn.close()
 
 
 def run():
     try:
-        config = load_config()
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((config['IP'], config['Port']))
         server.listen()
         print('Server Started')
-        # find_available_servers()
+        print(available_servers)
         while True:
             conn, addr = server.accept()
             print(addr[0] + " connected")
