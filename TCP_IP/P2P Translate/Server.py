@@ -33,7 +33,13 @@ def load_config() -> dict:
 
 def log(message: str):
     with open("server_log.txt", 'a') as f:
-        f.write(message)
+        f.write(message + '\n')
+
+
+# def log_send(conn, message: str):
+#     conn.send(message)
+#     log()
+
 
 words = {
     'future': 'budoucnost',
@@ -65,7 +71,7 @@ def translate_rem(conn, word: str):
         with ThreadPoolExecutor(max_workers=len(available_servers)) as executor:
             executor.map(find_translation, available_servers, repeat(word), repeat(conn))
     else:
-        conn.send('TRANSLATEERR"NO AVAILABLE SERVERS FOUND"')
+        conn.send('TRANSLATEERR"No available servers found"')
 
 
 def translate_any(conn, word: str):
@@ -94,9 +100,11 @@ def find_translation(server, word: str, conn):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     socket.setdefaulttimeout(3)
     client.connect(server)
-    client.send(f'TRANSLATELOC"{word}"'.encode())
+    msg = f'TRANSLATELOC"{word}"'
+    client.send(msg.encode())
+    log(f'{server[0]}:{server[1]} -> {msg}')
     answer = client.recv(1024)
-    print(answer)
+    log(f'{server[0]}:{server[1]} <- {answer.decode()}')
     conn.send(answer)
 
 
@@ -131,19 +139,18 @@ def check_ip(server):
     except TimeoutError:
         pass
     except Exception as e:
-        import traceback
-        print(server)
-        print(traceback.format_exc())
+        log(e.__str__())
     finally:
         socket_obj.close()
 
 
-def client_thread(conn):
+def client_thread(conn, addr):
     """
     Used for handling client inputs
     """
     try:
         message = conn.recv(1024).decode()
+        log(f'{addr[0]}:{addr[1]} -> {message}')
         if message == '\r\n' or message == '\r':
             message = conn.recv(1024).decode()
         command, word = message.split('"')[:-1]
@@ -152,9 +159,11 @@ def client_thread(conn):
         else:
             raise ValueError
     except ValueError:
-        conn.send('TRASNLATEERR"Invalid Command"'.encode())
+        msg = 'TRASNLATEERR"Invalid Command"'
+        conn.send(msg.encode())
+        log(f'{addr[0]}:{addr[1]} <- {msg}')
     except Exception as e:
-        print(e)
+        log(e.__str__())
     finally:
         conn.close()
 
@@ -166,14 +175,14 @@ def run():
         server.listen()
         while True:
             conn, addr = server.accept()
-            print(addr[0] + " connected")
-            t = threading.Thread(target=client_thread, args=(conn, ))
+            log(addr[0] + " connected")
+            t = threading.Thread(target=client_thread, args=(conn, addr))
             t.start()
     except OSError as e:
-        print(e)
-        print('Server stopped')
+        log(e.__str__())
+        log('Server stopped')
     except Exception as e:
-        print(e)
+        log(e.__str__())
 
 
 if __name__ == '__main__':
