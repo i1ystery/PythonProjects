@@ -82,7 +82,7 @@ def translate_any(conn, word: str):
     if word.lower() in words.keys():
         conn.send(f'TRANSLATESUC"{words[word.lower()]}"'.encode())
     else:
-        conn.send('TRANSLATEERR"Unknown word"'.encode())
+        #conn.send('TRANSLATEERR"Unknown word"'.encode())
         translate_rem(conn, word)
 
 
