@@ -121,8 +121,8 @@ def find_available_servers():
     """
     Finds available servers in defined IP range
     """
-    all_servers = [str(ip) for ip in ipaddress.IPv4Network(config['IP_RANGE'])][1:-1]  # All possible server IP's excluding Network address and Broadcast address
-    
+    all_servers = [str(ip) for ip in ipaddress.IPv4Network(config['IP_RANGE'])][1:-1]  # All possible server IP's excluding Network address and Broadcast address.
+    # Stackoverflow inspiration Petr Javorik
     with ThreadPoolExecutor(max_workers=len(all_servers)) as executor:
         executor.map(check_ip, all_servers)
 
