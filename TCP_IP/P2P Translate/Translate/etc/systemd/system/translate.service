@@ -1,0 +1,13 @@
+[Unit]
+Description=Translate
+After=network.target
+
+[Service]
+ExecStart=python3 /usr/local/bin/Translate.py
+User=nobody
+WorkingDirectory=/tmp
+Restart=on-failure
+RestartSecs=5
+
+[Install]
+WantedBy=multi-user.targer

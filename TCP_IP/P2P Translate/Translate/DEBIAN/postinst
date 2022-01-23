@@ -1,0 +1,4 @@
+#!/bin/bash
+sudo chmod 755 /usr/local/bin/Translate.py
+sudo chmod 755 /usr/local/etc/cfg.json
+sudo chmod 755 /usr/local/bin/serverLogging.py
