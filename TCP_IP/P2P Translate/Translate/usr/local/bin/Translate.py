@@ -17,8 +17,8 @@ def load_config() -> dict:
     Loads config from json file
     :return: config as dictionary
     """
-    if os.path.isfile('/usr/local/etc/cfg.json'):
-        with open("/usr/local/etc/cfg.json", 'r') as f:
+    if os.path.isfile('../etc/cfg.json'):
+        with open("../etc/cfg.json", 'r') as f:
             return json.load(f)
     else:
         cfg = {
@@ -27,7 +27,7 @@ def load_config() -> dict:
             "IP_RANGE": "127.0.0.0/24",
             "PORT_RANGE": "65525-65535"
             }
-        with open('/usr/local/etc/cfg.json', 'w') as f:
+        with open('../etc/cfg.json', 'w') as f:
             json.dump(cfg, f, indent=True)
             raise NotConfigured
 
@@ -123,7 +123,7 @@ def find_available_servers():
     """
     all_servers = [str(ip) for ip in ipaddress.IPv4Network(config['IP_RANGE'])][1:-1]  # All possible server IP's excluding Network address and Broadcast address.
     # Stackoverflow inspiration Petr Javorik
-    with ThreadPoolExecutor(max_workers=len(all_servers)) as executor:
+    with ThreadPoolExecutor(max_workers=256) as executor:
         executor.map(check_ip, all_servers)
 
 
@@ -138,7 +138,7 @@ def check_ip(server):
             continue
         try:
             socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            socket_obj.settimeout(1)
+            socket_obj.settimeout(0.01)
             socket_obj.connect_ex((server, port))
             socket_obj.send('TRANSLATELOC"test"'.encode())
             msg = socket_obj.recv(1024).decode()

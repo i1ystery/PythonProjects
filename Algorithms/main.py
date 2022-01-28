@@ -32,7 +32,8 @@ def bruteforce(*args):
 
 
 def monte_carlo(*args):
-    combinations = random.randint(len(args)//2, len(args) - 1)
+    #combinations = random.randint(len(args)//2, len(args) - 1)
+    combinations = 500
     perm = list()
     input_data = list(args)
     while combinations > 0:
@@ -45,33 +46,76 @@ def monte_carlo(*args):
     return results
 
 
-def heuristic(*args):
-    possible_permutations = list(permutations(args))
-    half_permutations = possible_permutations[:len(possible_permutations)//2]
-    half_results = get_min_diff(half_permutations)
-    results = []
-    for res in half_results:
-        results.append(res)
-        reversed_res = (tuple(reversed(res[0])), res[1])
-        results.append(reversed_res)
-    return results
+def boat_boat_heurestics(*args):
+    left = []
+    right = []
+    pomu = list(args)
+    addLeft = True
+    count_to_add = 1
+    for _ in range(len(pomu)):
+        maximal = max(pomu)
+        pomu.remove(maximal)
+        if addLeft:
+            left.append(maximal)
+            count_to_add -= 1
+            if count_to_add == 0:
+                addLeft = False
+                count_to_add = 2
+        elif not addLeft:
+            right.append(maximal)
+            count_to_add -= 1
+            if count_to_add == 0:
+                addLeft = True
+                count_to_add = 2
+
+    right.reverse()
+    return left + right
+
+# def heuristic(*args):
+#     possible_permutations = list(permutations(args))
+#     half_permutations = possible_permutations[:len(possible_permutations)//2]
+#     half_results = get_min_diff(half_permutations)
+#     results = []
+#     for res in half_results:
+#         results.append(res)
+#         reversed_res = (tuple(reversed(res[0])), res[1])
+#         results.append(reversed_res)
+#     return results
 
 
 if __name__ == "__main__":
-    lulw = []
-    for i in range(0,5):
-        lulw.append(i)
-    tracemalloc.start()
-    startTime = time.time()
+    time_complex = []
+    space = []
+    for i in range(0,2000):
+        arr = []
+        for i in range(0, i):
+            arr.append(i)
+        tracemalloc.start()
+        startTime = time.time()
 # ============== Zacatek mereneho zdrojoveho kodu ==================
-    print(bruteforce(*lulw))
-    print(monte_carlo(*lulw))
-    print(heuristic(*lulw))
+        #bruteforce(*arr)
+        #monte_carlo(*arr)
+        #heuristic(*arr)
+        boat_boat_heurestics(*arr)
 # =============== Konec mereneho zdrojoveho kodu ==================
-    timeConsupmtion = (time.time() - startTime) * 1000
-    memoryConsumption = tracemalloc.get_tracemalloc_memory()
-    tracemalloc.stop()
+        timeConsupmtion = (time.time() - startTime) * 1000
+        memoryConsumption = tracemalloc.get_tracemalloc_memory()
+        tracemalloc.stop()
+        time_complex.append(timeConsupmtion)
+        space.append(len(arr))
+        #space.append(memoryConsumption)
 
-    print("Spotreba pameti: " + str(memoryConsumption) + " Bytes")
-    print("Spotreba casu: " + str(timeConsupmtion) + " milisec")
+    import matplotlib.pyplot as plt
+    # plotting the points
+    plt.plot(space, time_complex)
 
+    # naming the x axis
+    plt.xlabel('x - Space')
+    # naming the y axis
+    plt.ylabel('y - Time')
+
+    # giving a title to my graph
+    plt.title('My first graph!')
+
+    # function to show the plot
+    plt.show()
