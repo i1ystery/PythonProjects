@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from itertools import permutations
 import time
 import tracemalloc
@@ -37,8 +38,7 @@ def monte_carlo(*args):
     perm = list()
     input_data = list(args)
     while combinations > 0:
-        shuffled_list = list(input_data)
-        random.shuffle(input_data)
+        shuffled_list = random.sample(input_data, len(input_data))
         if shuffled_list not in perm:
             perm.append(tuple(shuffled_list))
             combinations -= 1
@@ -71,51 +71,44 @@ def boat_boat_heurestics(*args):
     right.reverse()
     return left + right
 
-# def heuristic(*args):
-#     possible_permutations = list(permutations(args))
-#     half_permutations = possible_permutations[:len(possible_permutations)//2]
-#     half_results = get_min_diff(half_permutations)
-#     results = []
-#     for res in half_results:
-#         results.append(res)
-#         reversed_res = (tuple(reversed(res[0])), res[1])
-#         results.append(reversed_res)
-#     return results
-
 
 if __name__ == "__main__":
     time_complex = []
     space = []
-    for i in range(0,2000):
+    for i in range(0, 10):
         arr = []
-        for i in range(0, i):
-            arr.append(i)
+        for j in range(0, i):
+            arr.append(j)
         tracemalloc.start()
         startTime = time.time()
 # ============== Zacatek mereneho zdrojoveho kodu ==================
-        #bruteforce(*arr)
+        bruteforce(*arr)
         #monte_carlo(*arr)
         #heuristic(*arr)
-        boat_boat_heurestics(*arr)
+        #boat_boat_heurestics(*arr)
 # =============== Konec mereneho zdrojoveho kodu ==================
         timeConsupmtion = (time.time() - startTime) * 1000
         memoryConsumption = tracemalloc.get_tracemalloc_memory()
         tracemalloc.stop()
         time_complex.append(timeConsupmtion)
         space.append(len(arr))
-        #space.append(memoryConsumption)
+        space.append(memoryConsumption)
 
-    import matplotlib.pyplot as plt
-    # plotting the points
-    plt.plot(space, time_complex)
-
-    # naming the x axis
-    plt.xlabel('x - Space')
-    # naming the y axis
-    plt.ylabel('y - Time')
-
-    # giving a title to my graph
-    plt.title('My first graph!')
-
-    # function to show the plot
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # # plotting the points
+    # plt.plot(space, time_complex)
+    #
+    # # naming the x axis
+    # plt.xlabel('x - Space')
+    # # naming the y axis
+    # plt.ylabel('y - Time')
+    #
+    # # giving a title to my graph
+    # plt.title('My first graph!')
+    #
+    # # function to show the plot
+    # plt.show()
+    a = np.array(time_complex)
+    b = np.array(space)
+    print(a)
+    print(b)
