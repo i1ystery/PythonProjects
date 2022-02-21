@@ -1,4 +1,3 @@
-import random
 import numpy as np
 from itertools import permutations
 import time
@@ -75,7 +74,7 @@ def boat_boat_heurestics(*args):
 if __name__ == "__main__":
     time_complex = []
     space = []
-    for i in range(0, 10):
+    for i in range(0,12):
         arr = []
         for j in range(0, i):
             arr.append(j)
@@ -112,3 +111,4 @@ if __name__ == "__main__":
     b = np.array(space)
     print(a)
     print(b)
+    print(np.sum(a))
