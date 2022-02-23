@@ -70,3 +70,4 @@ sns.distplot(random.normal(loc=2,scale=3,size=20), hist=False)
 
 plt.show()
 print(np.random.binomial(5,[1,2,3,4,5,6], 0.16))
+
