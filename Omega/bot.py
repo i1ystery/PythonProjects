@@ -18,7 +18,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if 'getrandomanime' in message.content.lower():
+    if 'authorize' in message.content.lower():
         r = requests.get('https://api.jikan.moe/v4/random/anime')
         data = r.json()
         await message.channel.send(f'Random anime {data["data"]["title"]}\nLink: {data["data"]["url"]}')
