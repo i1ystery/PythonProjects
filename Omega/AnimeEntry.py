@@ -18,3 +18,6 @@ class Anime:
         self.user_status = anime_data['my_list_status']['status']
         self.user_rewatching = True if anime_data['my_list_status']['is_rewatching'] == 'true' else False
 
+
+    def __str__(self):
+        return f'Anime: {self.anime_title}\n'

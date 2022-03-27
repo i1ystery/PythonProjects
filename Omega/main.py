@@ -17,14 +17,18 @@ client.remove_command('help')
 #hrs = pd.read_excel(fileName).iloc[[0]].values.tolist()[0]
 #hrs.pop(0)
 rng = ['retard', 'curak', 'borec', 'frajer', 'nejlepsi']
+
+
 def update_sheets():
     sheets = pd.ExcelFile(fileName).sheet_names
+
 
 def get_sheet_by_date(date):
     for sheet in sheets:
         if '.' in sheet:
             if date == sheet.split(' ', 1)[1].replace(" ","") or date == sheet.split(' ', 1)[1].replace(" ","")[:-1]:
                 return pd.read_excel(fileName, sheet_name=sheet)
+
 
 def get_classes(table, schoolclass):
     if schoolclass not in unordered_map:
