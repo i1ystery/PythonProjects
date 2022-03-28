@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(52, 52, 52)</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="3" column="2">
+     <widget class="QLabel" name="en_name">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>en_name</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLabel" name="role">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>role_txt</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="role_lbl">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Role</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QLabel" name="name">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>name_txt</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QLabel" name="name_lbl">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLabel" name="en_voice_actor">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>EN Voice Actor</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="jp_voice_actor">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>JP Voice Actor</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QLabel" name="jp_name">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>jp_name</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" rowspan="4">
+     <widget class="QLabel" name="image">
+      <property name="maximumSize">
+       <size>
+        <width>300</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>../models/1.jpg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

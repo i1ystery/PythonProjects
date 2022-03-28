@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>200</height>
+   </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>600</width>
+    <height>200</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="maximumSize">
+    <size>
+     <width>600</width>
+     <height>200</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(52, 52, 52)</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="2" column="1">
+     <widget class="QComboBox" name="score_dropdown">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;background-color: rgb(27, 27, 45)</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Новый элемент</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Новый элемент</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="4">
+     <widget class="QLabel" name="anime_name">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 20pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>ANIME NAME</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="score_lbl">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 13pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Your score</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLabel" name="episodes_lbl">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>15</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>15</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 13pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Episodes watched</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QComboBox" name="status_dropdown">
+      <property name="minimumSize">
+       <size>
+        <width>160</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;background-color: rgb(27, 27, 45)</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Новый элемент</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Новый элемент</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="status_lbl">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 13pt &quot;Segoe UI Variable Display Semib&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Status</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QComboBox" name="episodes_dropdown">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>60</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;background-color: rgb(27, 27, 45)</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Новый элемент</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Новый элемент</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+    <item row="1" column="3" rowspan="2">
+     <widget class="QPushButton" name="save_btn">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>70</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;background-color: rgb(27, 27, 45)</string>
+      </property>
+      <property name="text">
+       <string>Save</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
