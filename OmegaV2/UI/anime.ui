@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>572</height>
+    <width>700</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>800</width>
-      <height>581</height>
+      <width>700</width>
+      <height>580</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -56,7 +56,7 @@
       <rect>
        <x>175</x>
        <y>20</y>
-       <width>601</width>
+       <width>511</width>
        <height>41</height>
       </rect>
      </property>
@@ -97,7 +97,7 @@
       <rect>
        <x>300</x>
        <y>60</y>
-       <width>371</width>
+       <width>321</width>
        <height>21</height>
       </rect>
      </property>
@@ -129,7 +129,7 @@
       <rect>
        <x>300</x>
        <y>90</y>
-       <width>371</width>
+       <width>321</width>
        <height>21</height>
       </rect>
      </property>
@@ -143,7 +143,7 @@
     <widget class="QLabel" name="score">
      <property name="geometry">
       <rect>
-       <x>710</x>
+       <x>630</x>
        <y>60</y>
        <width>81</width>
        <height>21</height>
@@ -159,8 +159,8 @@
     <widget class="QLabel" name="score_number">
      <property name="geometry">
       <rect>
-       <x>710</x>
-       <y>80</y>
+       <x>630</x>
+       <y>90</y>
        <width>51</width>
        <height>21</height>
       </rect>
@@ -521,48 +521,10 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLabel" name="synopsis">
-     <property name="geometry">
-      <rect>
-       <x>175</x>
-       <y>120</y>
-       <width>71</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255); font: 63 11pt Segoe UI Variable Display Semib;</string>
-     </property>
-     <property name="text">
-      <string>Synopsis</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="synopsis_text">
-     <property name="geometry">
-      <rect>
-       <x>175</x>
-       <y>140</y>
-       <width>521</width>
-       <height>91</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">color: rgb(255, 255, 255); font: 63 11pt Segoe UI Variable Display Semib;</string>
-     </property>
-     <property name="text">
-      <string>synopsis_text</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
     <widget class="QPushButton" name="add_to_list">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>510</y>
        <width>441</width>
        <height>51</height>
@@ -578,9 +540,9 @@
     <widget class="QPushButton" name="back_btn">
      <property name="geometry">
       <rect>
-       <x>640</x>
+       <x>560</x>
        <y>510</y>
-       <width>141</width>
+       <width>131</width>
        <height>51</height>
       </rect>
      </property>
@@ -594,17 +556,17 @@
     <widget class="QPushButton" name="anime_characters">
      <property name="geometry">
       <rect>
-       <x>300</x>
-       <y>400</y>
-       <width>161</width>
-       <height>51</height>
+       <x>540</x>
+       <y>390</y>
+       <width>151</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;; background-color: rgb(27, 27, 45);</string>
      </property>
      <property name="text">
-      <string>Anime characters</string>
+      <string>Show Character Info</string>
      </property>
     </widget>
     <widget class="QLabel" name="broadcast_time">
@@ -663,18 +625,66 @@
     <widget class="QPushButton" name="episodes">
      <property name="geometry">
       <rect>
-       <x>480</x>
-       <y>400</y>
-       <width>161</width>
-       <height>51</height>
+       <x>540</x>
+       <y>450</y>
+       <width>151</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="styleSheet">
       <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;; background-color: rgb(27, 27, 45);</string>
      </property>
      <property name="text">
-      <string>Episodes</string>
+      <string>Show Episode Info</string>
      </property>
+    </widget>
+    <widget class="QComboBox" name="character_drop">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>390</y>
+       <width>251</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;background-color: rgb(27, 27, 45)</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Новый элемент</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QComboBox" name="episode_drop">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>450</y>
+       <width>251</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>40</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255); font: 63 11pt &quot;Segoe UI Variable Display Semib&quot;;background-color: rgb(27, 27, 45)</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>Новый элемент</string>
+      </property>
+     </item>
     </widget>
    </widget>
   </widget>
