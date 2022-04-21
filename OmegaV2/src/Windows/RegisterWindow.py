@@ -54,6 +54,7 @@ class RegisterWindow(object):
             self.pass_input.setStyleSheet(
                 "color: rgb(255, 255, 255); font: 63 11pt \"Segoe UI Variable Display Semib\"")
             self.pass_input.setFont(font)
+            self.pass_input.setEchoMode(QtWidgets.QLineEdit.Password)
             self.pass_input.setInputMethodHints(QtCore.Qt.ImhSensitiveData)
 
             # Login label
@@ -93,6 +94,7 @@ class RegisterWindow(object):
             self.pass_input_2.setStyleSheet(
                 "color: rgb(255, 255, 255); font: 63 11pt \"Segoe UI Variable Display Semib\"")
             self.pass_input_2.setFont(font)
+            self.pass_input_2.setEchoMode(QtWidgets.QLineEdit.Password)
             self.pass_input_2.setInputMethodHints(QtCore.Qt.ImhSensitiveData)
 
             # Confirm password label

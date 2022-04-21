@@ -20,7 +20,7 @@ def get_anime_page(session, anime_id: int = 0, mode: int = 0) -> list[Anime]:
     if mode == 0 or mode == 1:
         animes = session.query(Anime).where(Anime.id > anime_id).limit(3).all()
     elif mode == -1 and anime_id - 3 >= 1:
-        animes = session.query(Anime).where(Anime.id >= anime_id - 4).limit(3).all()
+        animes = session.query(Anime).where(Anime.id >= anime_id - 3).limit(3).all()
     return animes
 
 
@@ -38,7 +38,7 @@ def get_manga_page(session, manga_id: int = 0, mode: int = 0) -> list[Manga]:
     if mode == 0 or mode == 1:
         mangas = session.query(Manga).where(Manga.id > manga_id).limit(3).all()
     elif mode == -1 and manga_id - 3 >= 1:
-        mangas = session.query(Manga).where(Manga.id >= manga_id - 4).limit(3).all()
+        mangas = session.query(Manga).where(Manga.id >= manga_id - 3).limit(3).all()
     return mangas
 
 
@@ -73,7 +73,7 @@ def get_user_anime_page(session, user: User, item_filter: Status, user_anime_id:
     """
     if mode == 0 or mode == 1:
         if item_filter == Status.ALL:
-            animes = session.query(UserAnimeListItem).join(User).where(User.id == user.id, UserAnimeListItem.id > user_anime_id,).limit(3).all()
+            animes = session.query(UserAnimeListItem).join(User).where(User.id == user.id, UserAnimeListItem.id > user_anime_id).limit(3).all()
         else:
             animes = session.query(UserAnimeListItem).join(User).where(User.id == user.id,
                                                                        UserAnimeListItem.id > user_anime_id,
@@ -81,10 +81,10 @@ def get_user_anime_page(session, user: User, item_filter: Status, user_anime_id:
                                                                        ).limit(3).all()
     elif mode == - 1 and user_anime_id - 3 >= 1:
         if item_filter == Status.ALL:
-            animes = session.query(UserAnimeListItem).join(User).where(User.id == user.id, UserAnimeListItem.id >= user_anime_id - 4).limit(3).all()
+            animes = session.query(UserAnimeListItem).join(User).where(User.id == user.id, UserAnimeListItem.id >= user_anime_id - 3).limit(3).all()
         else:
             animes = session.query(UserAnimeListItem).join(User).where(User.id == user.id,
-                                                                       UserAnimeListItem.id >= user_anime_id - 4,
+                                                                       UserAnimeListItem.id >= user_anime_id - 3,
                                                                        UserAnimeListItem.status == item_filter.value
                                                                        ).limit(3).all()
     return animes
@@ -111,10 +111,10 @@ def get_user_manga_page(session, user: User, item_filter: Status, user_manga_id:
                                                                        ).limit(3).all()
     elif mode == - 1 and user_manga_id - 3 >= 1:
         if item_filter == Status.ALL:
-            mangas = session.query(UserMangaListItem).join(User).where(User.id == user.id, UserMangaListItem.id >= user_manga_id - 4).limit(3).all()
+            mangas = session.query(UserMangaListItem).join(User).where(User.id == user.id, UserMangaListItem.id >= user_manga_id - 3).limit(3).all()
         else:
             mangas = session.query(UserMangaListItem).join(User).where(User.id == user.id,
-                                                                       UserMangaListItem.id >= user_manga_id - 4,
+                                                                       UserMangaListItem.id >= user_manga_id - 3,
                                                                        UserMangaListItem.status == item_filter.value
                                                                        ).limit(3).all()
     return mangas

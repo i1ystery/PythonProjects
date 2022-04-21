@@ -158,6 +158,10 @@ def delete_user_item(session, user_anime_item: Union[UserAnimeListItem, UserMang
     """
     try:
         session.delete(user_anime_item)
+        if isinstance(user_anime_item, UserAnimeListItem):
+            session.execute(f"DBCC CHECKIDENT('user_anime_list_item', RESEED, {user_anime_item.id - 1})")
+        else:
+            session.execute(f"DBCC CHECKIDENT('user_manga_list_item', RESEED, {user_anime_item.id - 1})")
         session.commit()
         return 'Successfully deleted'
     except Exception as e:

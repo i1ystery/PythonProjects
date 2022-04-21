@@ -52,9 +52,12 @@ class AnimeInfo(object):
         Opens chosen character info window from dropdown list
         """
         try:
-            chosen_character = self.anime.anime_characters[self.character_drop.currentIndex()]
-            self.char_info = QtWidgets.QMainWindow()
-            self.char_info_ui = CharacterWindow(self.char_info, chosen_character)
+            try:
+                chosen_character = self.anime.anime_characters[self.character_drop.currentIndex()]
+                self.char_info = QtWidgets.QMainWindow()
+                self.char_info_ui = CharacterWindow(self.char_info, chosen_character)
+            except:
+                pass
         except:
             self.err = ErrorWindow(exc_info())
 
@@ -63,9 +66,12 @@ class AnimeInfo(object):
         Opens chosen episode info window from dropdown list
         """
         try:
-            chosen_episode = self.anime.episodes[self.episode_drop.currentIndex()]
-            self.episode_info = QtWidgets.QMainWindow()
-            self.episode_info_ui = EpisodeWindow(self.episode_info, chosen_episode, self.anime)
+            try:
+                chosen_episode = self.anime.episodes[self.episode_drop.currentIndex()]
+                self.episode_info = QtWidgets.QMainWindow()
+                self.episode_info_ui = EpisodeWindow(self.episode_info, chosen_episode, self.anime)
+            except:
+                pass
         except:
             self.err = ErrorWindow(exc_info())
 

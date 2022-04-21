@@ -25,5 +25,8 @@ def make_new_db():
 #     a = session.query(Anime).all()
 #     last = a[len(a) - 1]
 #     print(last.title)
+#     a = last.id
+#     print(a)
 #     session.delete(last)
+#     session.execute(f"DBCC CHECKIDENT('anime', RESEED, {a - 1})")
 #     session.commit()

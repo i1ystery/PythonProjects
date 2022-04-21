@@ -46,6 +46,7 @@ class LoginWindow(object):
             font = QtGui.QFont()
             font.setFamily("Segoe UI Variable Display Semib")
             self.pass_input.setFont(font)
+            self.pass_input.setEchoMode(QtWidgets.QLineEdit.Password)
             self.pass_input.setStyleSheet("color: rgb(255, 255, 255); font: 63 11pt \"Segoe UI Variable Display Semib\"")
 
             # Login label

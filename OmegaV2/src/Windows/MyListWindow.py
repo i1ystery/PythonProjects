@@ -104,6 +104,7 @@ class MyListWindow(object):
                 self.add_to_list_ui = AddAnimeWindow(self.add_to_list_window, item, self.parent.session)
             else:
                 self.add_to_list_ui = AddMangaWindow(self.add_to_list_window, item, self.parent.session)
+            self.load_page()
         except:
             self.err = ErrorWindow(exc_info())
 
@@ -150,6 +151,8 @@ class MyListWindow(object):
                         self.current_page += 1
             # MODE -1 = PREVIOUS PAGE
             if load_mode == -1:
+                print(self.first_item.id)
+                print(self.first_item.id - 4)
                 if self.current_page > 1:
                     if self.parent.mode == Mode.ANIME:
                         items = get_user_anime_page(

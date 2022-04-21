@@ -329,9 +329,12 @@ class MangaInfo(object):
         Opens chosen character info window from dropdown list
         """
         try:
-            chosen_character = self.manga.characters[self.character_drop.currentIndex()]
-            self.char_info = QtWidgets.QMainWindow()
-            self.char_info_ui = CharacterWindow(self.char_info, chosen_character)
+            try:
+                chosen_character = self.manga.characters[self.character_drop.currentIndex()]
+                self.char_info = QtWidgets.QMainWindow()
+                self.char_info_ui = CharacterWindow(self.char_info, chosen_character)
+            except:
+                pass
         except:
             self.err = ErrorWindow(exc_info())
 
