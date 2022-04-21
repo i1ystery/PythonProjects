@@ -1,0 +1,29 @@
+     Anime
+
+# Tokyo revengers
+# Tokyo ghoul
+# Spy x Family
+# Mieruko-chan
+# Shingeki no Kyojin: The Final Season
+# Shingeki no Kyojin: The Final Season Part 2
+# Fullmetal Alchemist: Brotherhood
+
+
+# Steins;Gate
+# One Punch Man
+
+     Manga
+
+# Berserk
+# Kingdom
+# Solo Leveling
+# Vagabond
+# Oyasumi Punpun
+# Vinland Saga
+
+# Chainsaw Man
+# Koe no Katachi
+
+
+ADMIN LOGIN PASS:
+admin:admin
