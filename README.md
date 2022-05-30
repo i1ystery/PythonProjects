@@ -1,1 +1,1 @@
-# PythonProjects by Max Kuzma
+# PythonProjects that were done while I was studying
