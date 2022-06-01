@@ -7,9 +7,9 @@ Instructions before running application:
 3. Then you'll have to write this lines into file and save file.
 {
  "SERVER": "193.85.203.188",
- "DATABASE": "kuzma",
- "UID": "kuzma",
- "PWD": "asdwsx78"
+ "DATABASE": "DATABASE",
+ "UID": "UID",
+ "PWD": "PWD"
 }
 
 Instructions for launching application:
