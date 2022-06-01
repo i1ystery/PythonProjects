@@ -12,11 +12,11 @@ def _default_config() -> dict:
     :return: dict default config
     """
     cfg = {
-        "DB_SERVER_IP": "193.85.203.188",
-        "DATABASE_NAME": "kuzma",
+        "DB_SERVER_IP": "IP",
+        "DATABASE_NAME": "DATABASE_NAME",
         "DB_DRIVER": "SQL Server Native Client 11.0",
-        "DB_USERNAME": "kuzma",
-        "DB_PASSWORD": "Asdwsx78",
+        "DB_USERNAME": "DATABASE_USERNAME",
+        "DB_PASSWORD": "DATABASE_PASSWORD",
         "IMAGES_PATH": "./images"
     }
     return cfg
